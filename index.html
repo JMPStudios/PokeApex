@@ -778,7 +778,7 @@ nav {
 
 <!-- Sistema de Modais Globais -->
 
-<div id="msg-modal" class="modal-overlay" style="z-index: 400;" onclick="this.style.display='none'">
+<div id="msg-modal" class="modal-overlay" style="z-index: 100000;" onclick="this.style.display='none'">
     <div class="modal-content" style="width: 350px; text-align: center;" onclick="event.stopPropagation()">
         <p id="msg-text" style="margin-bottom: 20px; font-size: 14px; font-weight: bold; color: var(--secondary); line-height: 1.4;"></p>
         <button class="btn" style="width: 100%;" onclick="document.getElementById('msg-modal').style.display='none'">OK</button>
@@ -805,7 +805,7 @@ nav {
 
 </div>
 
-<div id="save-modal" class="modal-overlay" style="z-index: 500;">
+<div id="save-modal" class="modal-overlay" style="z-index: 100000;">
     <div class="modal-content" style="width: 500px; max-height: 80vh; display: flex; flex-direction: column;">
         <div class="modal-header">
             <h3 id="save-modal-title">Gestão de Save</h3>
@@ -820,25 +820,63 @@ nav {
     </div>
 </div>
 
+<!-- 👇 NOVA TELA DE NOVO JOGO / BOAS-VINDAS 👇 -->
 <div id="starter-modal" class="modal-overlay" style="z-index: 99999; background: #0b0f19;">
-    <div class="modal-content" style="width: 600px; max-width: 95%; text-align: center; background: #1e272e; color: white; border: 2px solid var(--primary); box-shadow: 0 0 50px rgba(41, 128, 185, 0.4);">
-        <div class="modal-header" style="border-bottom: 1px solid #34495e; background: transparent; color: white;">
-            <h3 style="color: #ecf0f1;">Bem-vindo ao Mundo Pokémon!</h3>
+    <!-- Botões de Importar Save no Topo Direito -->
+    <div style="position: absolute; top: 15px; right: 20px; display: flex; gap: 10px; z-index: 100000;">
+        <button class="btn" style="background: #27ae60; font-size: 11px; border: 1px solid #2ecc71; box-shadow: 0 4px 6px rgba(0,0,0,0.5);" onclick="document.getElementById('file-import-save').click()">📂 Carregar (.JSON)</button>
+        <button class="btn" style="background: #f39c12; font-size: 11px; border: 1px solid #f1c40f; box-shadow: 0 4px 6px rgba(0,0,0,0.5);" onclick="openTextSaveModal('import')">📝 Colar Código</button>
+    </div>
+
+    <div class="modal-content" style="width: 650px; max-width: 95%; text-align: center; background: #1e272e; color: white; border: 2px solid var(--primary); box-shadow: 0 0 50px rgba(41, 128, 185, 0.4); max-height: 90dvh; overflow-y: auto;">
+        
+        <!-- Bloco do Professor (Sprite Dinâmico) -->
+        <div style="display: flex; align-items: center; gap: 15px; background: #2c3e50; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #34495e;">
+            <img src="https://play.pokemonshowdown.com/sprites/trainers/oak.png" 
+                 alt="Professor Oak" 
+                 style="width: 80px; height: 80px; object-fit: contain; 
+                        image-rendering: pixelated; 
+                        image-rendering: -moz-crisp-edges; 
+                        image-rendering: crisp-edges; 
+                        filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));">
+            <div style="text-align: left;">
+                <h3 style="color: #ecf0f1; margin: 0 0 5px 0; font-size: 16px;">Bem-vindo ao Mundo Pokémon!</h3>
+                <p style="font-size: 12px; color: #bdc3c7; margin: 0; line-height: 1.4;">Olá! Eu sou o Professor Oak. Este mundo é habitado por criaturas chamadas Pokémon. Antes de começarmos a sua jornada, me fale um pouco sobre você.</p>
+            </div>
         </div>
-        <p style="font-size:12px; margin-bottom: 10px; color: #bdc3c7;">Qual é o seu nome, Treinador?</p>
-        <input type="text" id="new-trainer-name" placeholder="Escreva o seu nome..." style="width: 100%; margin-bottom: 15px; background: #2c3e50; color: white; border: 1px solid #7f8c8d;">
+
+        <!-- Seção de Nome e Avatar empilhadas verticalmente -->
+<div style="display: flex; flex-direction: column; gap: 20px; margin-bottom: 20px;">
+    
+    <!-- Nome (Acima) -->
+    <div style="text-align: left;">
+        <label style="font-size:12px; color: #bdc3c7; display: block; margin-bottom: 5px; font-weight: bold;">Qual é o seu nome?</label>
+        <input type="text" id="new-trainer-name" placeholder="Ex: Ash" style="width: 100%; background: #11141a; color: white; border: 1px solid #7f8c8d; padding: 12px; border-radius: 6px; font-size: 14px;">
+    </div>
+
+    <!-- Avatar (Abaixo do Nome) -->
+    <div style="text-align: left;">
+        <label style="font-size:12px; color: #bdc3c7; display: block; margin-bottom: 8px; font-weight: bold;">Escolha o seu visual:</label>
+        <!-- display: flex com flex-wrap: wrap garante que fiquem na horizontal e pulem de linha -->
+        <div id="avatar-container" style="display: flex; flex-wrap: wrap; gap: 8px; background: #11141a; padding: 12px; border-radius: 8px; border: 1px solid #34495e; justify-content: center;">
+            <!-- Avatares gerados no JS -->
+        </div>
+        <input type="hidden" id="starter-selected-avatar" value="red">
+    </div>
+</div>
         
-        <p style="font-size:12px; margin-bottom: 10px; color: #bdc3c7;">Escolha o seu parceiro inicial:</p>
+        <label style="font-size:12px; color: #bdc3c7; display: block; margin-bottom: 10px; text-align: left; font-weight: bold;">Escolha o seu parceiro inicial:</label>
         
-        <!-- O Grid onde os sprites vão aparecer -->
-        <div id="starter-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; max-height: 45vh; overflow-y: auto; margin-bottom: 15px; padding: 15px; background: #11141a; border-radius: 8px; border: 1px solid #2c3e50;">
+        <!-- Grid de Iniciais -->
+        <div id="starter-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; max-height: 35vh; overflow-y: auto; margin-bottom: 15px; padding: 15px; background: #11141a; border-radius: 8px; border: 1px solid #2c3e50;">
             <!-- O JavaScript vai injetar as imagens aqui -->
         </div>
         
         <input type="hidden" id="starter-selected-value" value="">
-        <button class="btn btn-danger" id="btn-confirm-starter" style="width: 100%; padding: 15px; font-size: 16px; font-weight: bold; text-transform: uppercase; transition: 0.3s;" disabled onclick="confirmStarter()">Selecione um Parceiro</button>
+        <button class="btn" id="btn-confirm-starter" style="width: 100%; padding: 15px; font-size: 16px; font-weight: bold; text-transform: uppercase; transition: 0.3s; background: #95a5a6; color: #333;" disabled onclick="confirmStarter()">Selecione um Parceiro</button>
     </div>
 </div>
+<!-- 👆 👆 👆 -->
 
 
 
@@ -4004,52 +4042,82 @@ let spriteFront = finalData.sprites.front_default || finalData.sprites.other['of
 
 
     function startNewGame() {
-
-        if (playerTeam.length > 0 || playerBox.length > 0) showConfirm("Iniciar um Novo Jogo excluirá todo o progresso atual. Tem certeza?", openStarterModal); else openStarterModal();
-
+        if (playerTeam.length > 0 || playerBox.length > 0) {
+            showConfirm("Iniciar um Novo Jogo excluirá todo o progresso atual. Tem certeza?", openStarterModal); 
+        } else {
+            openStarterModal();
+        }
     }
 
-// 👉 DICIONÁRIO DE IDs PARA CARREGAMENTO INSTANTÂNEO DE IMAGENS
+// 👉 DICIONÁRIO DE IDs e AVATARES
     const STARTER_IDS = { bulbasaur:1, charmander:4, squirtle:7, pikachu:25, eevee:133, chikorita:152, cyndaquil:155, totodile:158, treecko:252, torchic:255, mudkip:258, turtwig:387, chimchar:390, piplup:393, snivy:495, tepig:498, oshawott:501, chespin:650, fennekin:653, froakie:656, rowlet:722, litten:725, popplio:728, grookey:810, scorbunny:813, sobble:816, sprigatito:906, fuecoco:909, quaxly:912 };
+    
+    // Lista de treinadores icônicos
+    const AVATARS = ['red', 'green', 'blue', 'rosa' , 'ethan', 'lyra', 'brendan', 'may', 'lucas', 'dawn', 'hilbert', 'hilda', 'calem', 'serena'];
 
-    // Função que acende o Pokémon escolhido
+    window.selectAvatar = function(name) {
+        document.getElementById('starter-selected-avatar').value = name;
+        document.querySelectorAll('.avatar-card').forEach(c => {
+            c.style.border = '1px solid #34495e';
+            c.style.background = 'transparent';
+        });
+        const selectedCard = document.getElementById('avatar-card-' + name);
+        if(selectedCard) {
+            selectedCard.style.border = '2px solid #3498db';
+            selectedCard.style.background = 'rgba(52, 152, 219, 0.3)';
+        }
+    };
+
     window.selectStarter = function(name) {
         document.getElementById('starter-selected-value').value = name;
-        
-        // Apaga todos
         document.querySelectorAll('.starter-card').forEach(c => {
             c.style.border = '2px solid #34495e';
             c.style.background = '#2c3e50';
         });
-        
-        // Acende o selecionado
         const selectedCard = document.getElementById('starter-card-' + name);
         selectedCard.style.border = '2px solid #2ecc71';
         selectedCard.style.background = 'rgba(46, 204, 113, 0.2)';
         
-        // Libera o botão
         const btn = document.getElementById('btn-confirm-starter');
         btn.disabled = false;
         btn.style.background = '#27ae60';
+        btn.style.color = 'white';
         btn.innerText = `Começar com ${name.toUpperCase()}!`;
     };
 
     function openStarterModal() {
         const grid = document.getElementById('starter-grid');
-        grid.innerHTML = ''; // Limpa a lista
+        grid.innerHTML = '';
         document.getElementById('starter-selected-value').value = '';
         
-        // Reseta o Botão
+        // Botão Resetado
         const btn = document.getElementById('btn-confirm-starter');
         btn.disabled = true;
         btn.style.background = '#95a5a6';
+        btn.style.color = '#333';
         btn.innerText = "Selecione um Parceiro";
         
-        // Desenha os sprites
+        // Desenha os Avatares (Correção de Pixels e Nitidez)
+        const avatarContainer = document.getElementById('avatar-container');
+        avatarContainer.innerHTML = '';
+        AVATARS.forEach((av) => {
+            const url = `https://play.pokemonshowdown.com/sprites/trainers/${av}.png`;
+            avatarContainer.innerHTML += `
+            <div id="avatar-card-${av}" class="avatar-card" style="width: 70px; height: 80px; display:flex; align-items:center; justify-content:center; border-radius: 8px; cursor: pointer; transition: 0.2s; border: 2px solid #34495e; background: #1c242b; overflow: hidden;" onclick="selectAvatar('${av}')" title="${av.toUpperCase()}">
+                <img src="${url}" style="height: 110%; width: 110%; object-fit: contain; 
+                    /* O segredo da nitidez está aqui: */
+                    image-rendering: pixelated; 
+                    image-rendering: -moz-crisp-edges; 
+                    image-rendering: crisp-edges;
+                    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));">
+            </div>`;
+        });
+        setTimeout(() => selectAvatar(AVATARS[0]), 50); // Seleciona o primeiro por padrão
+        
+        // Desenha os Iniciais
         STARTERS.forEach(s => {
             const id = STARTER_IDS[s];
             const imgUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
-            
             grid.innerHTML += `
             <div id="starter-card-${s}" class="starter-card" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding: 10px 5px; background: #2c3e50; border-radius: 8px; cursor: pointer; transition: 0.2s; border: 2px solid #34495e;" onclick="selectStarter('${s}')">
                 <img src="${imgUrl}" width="60" loading="lazy" style="image-rendering: pixelated; margin-bottom: 5px; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.5));">
@@ -4063,8 +4131,9 @@ let spriteFront = finalData.sprites.front_default || finalData.sprites.other['of
     async function confirmStarter() {
         const nameInput = document.getElementById('new-trainer-name').value.trim() || "Ash";
         const starterName = document.getElementById('starter-selected-value').value; 
+        const avatarSelected = document.getElementById('starter-selected-avatar').value || 'red';
         
-        if (!starterName) return; // Trava de segurança
+        if (!starterName) return;
 
         document.getElementById('starter-modal').style.display = 'none';
         showLoader(`Iniciando aventura com ${starterName.toUpperCase()}...`);
@@ -4073,9 +4142,10 @@ let spriteFront = finalData.sprites.front_default || finalData.sprites.other['of
         if (battleState.loopTimer) clearTimeout(battleState.loopTimer);
         battleState.active = false;
         
-        // 👉 RESET COMPLETO (Incluindo Torneios, Missões e Pokédex)
+        // 👉 AQUI SALVAMOS O AVATAR NO PERFIL DO TREINADOR!
         trainerState = { 
             name: nameInput, level: 1, exp: 0, points: 1, money: 150, 
+            avatar: avatarSelected, // <--- NOVA PROPRIEDADE
             stats: { treinamento: 0, captura: 0, criacao: 0 }, 
             daycare: { active: false, pkmn: null, timeLeft: 0 }, 
             eggs: [], factories: [], inventory: {}, 
@@ -4089,60 +4159,43 @@ let spriteFront = finalData.sprites.front_default || finalData.sprites.other['of
             registerPokedex(newPkmn); 
             saveTrainer(); localStorage.setItem('pkmnTeam', JSON.stringify(playerTeam)); localStorage.setItem('pkmnBox', JSON.stringify(playerBox));
             
-            // 👉 Força a atualização de todas as telas
             renderBoxAndTeam(); updateTrainerUI(); renderTourney(); 
             showMessage(`Sua jornada começou com ${starterName.toUpperCase()}!`);
-        } catch(e) { console.error(e); showMessage("Erro ao obter o Inicial: " + e.message); } hideLoader();
+        } catch(e) { showMessage("Erro ao obter o Inicial: " + e.message); } hideLoader();
     }
 
 
 
     function clearSave() {
-
         showConfirm("Tem certeza absoluta? Todos os dados serão apagados para sempre.", () => {
-
             playerTeam = []; playerBox = []; currentEnemyTeam = [];
-
             if (battleState.loopTimer) clearTimeout(battleState.loopTimer);
-
             battleState.active = false;
-
             
-
-            // 👉 RESET COMPLETO (Incluindo Torneios, Missões e Pokédex)
-
+            // 👉 RESET COMPLETO DE VARIÁVEIS NA MEMÓRIA
             trainerState = { 
-
                 name: "Ash", level: 1, exp: 0, points: 1, money: 150, 
-
                 stats: { treinamento: 0, captura: 0, criacao: 0 }, 
-
                 daycare: { active: false, pkmn: null, timeLeft: 0 }, 
-
                 eggs: [], factories: [], inventory: {}, 
-
                 activeTraining: { active: false, isTeam: false, idx: -1, statKey: '', timeLeft: 0, auto: false },
-
                 activeTourney: null, tourneyWins: {}, missions: [], pokedex: {} 
-
             };
-
             
-
-            saveTrainer(); localStorage.removeItem('pkmnTeam'); localStorage.removeItem('pkmnBox');
-
+            // 👉 APAGA OS DADOS DO NAVEGADOR
+            saveTrainer(); 
+            localStorage.removeItem('pkmnTeam'); 
+            localStorage.removeItem('pkmnBox');
             
-
-            // 👉 Força a atualização de todas as telas e te manda pro Início
-
-            renderBoxAndTeam(); updateTrainerUI(); renderTourney();
-
+            // 👉 Força a limpeza visual das telas
+            renderBoxAndTeam(); 
+            updateTrainerUI(); 
+            renderTourney();
             switchTab('tab-trainer'); 
-
-            showMessage("Save excluído com sucesso.");
-
+            
+            // 👉 A MÁGICA: Joga o jogador imediatamente para a tela escura de Novo Jogo!
+            openStarterModal();
         });
-
     }
 
     
