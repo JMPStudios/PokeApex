@@ -820,28 +820,24 @@ nav {
     </div>
 </div>
 
-<div id="starter-modal" class="modal-overlay" style="z-index: 350;">
-
-    <div class="modal-content" style="width: 400px; text-align: center;">
-
-        <div class="modal-header">
-
-            <h3>Bem-vindo ao Mundo Pokémon!</h3>
-
+<div id="starter-modal" class="modal-overlay" style="z-index: 99999; background: #0b0f19;">
+    <div class="modal-content" style="width: 600px; max-width: 95%; text-align: center; background: #1e272e; color: white; border: 2px solid var(--primary); box-shadow: 0 0 50px rgba(41, 128, 185, 0.4);">
+        <div class="modal-header" style="border-bottom: 1px solid #34495e; background: transparent; color: white;">
+            <h3 style="color: #ecf0f1;">Bem-vindo ao Mundo Pokémon!</h3>
         </div>
-
-        <p style="font-size:12px; margin-bottom: 10px; color: #555;">Qual é o seu nome, Treinador?</p>
-
-        <input type="text" id="new-trainer-name" placeholder="Escreva o seu nome..." style="width: 100%; margin-bottom: 15px;">
-
-        <p style="font-size:12px; margin-bottom: 10px; color: #555;">Escolha o seu parceiro inicial:</p>
-
-        <select id="starter-select" style="width: 100%; margin-bottom: 15px; font-size: 14px; text-transform: capitalize;"></select>
-
-        <button class="btn btn-danger" style="width: 100%; padding: 12px; font-size: 14px;" onclick="confirmStarter()">Iniciar Aventura!</button>
-
+        <p style="font-size:12px; margin-bottom: 10px; color: #bdc3c7;">Qual é o seu nome, Treinador?</p>
+        <input type="text" id="new-trainer-name" placeholder="Escreva o seu nome..." style="width: 100%; margin-bottom: 15px; background: #2c3e50; color: white; border: 1px solid #7f8c8d;">
+        
+        <p style="font-size:12px; margin-bottom: 10px; color: #bdc3c7;">Escolha o seu parceiro inicial:</p>
+        
+        <!-- O Grid onde os sprites vão aparecer -->
+        <div id="starter-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; max-height: 45vh; overflow-y: auto; margin-bottom: 15px; padding: 15px; background: #11141a; border-radius: 8px; border: 1px solid #2c3e50;">
+            <!-- O JavaScript vai injetar as imagens aqui -->
+        </div>
+        
+        <input type="hidden" id="starter-selected-value" value="">
+        <button class="btn btn-danger" id="btn-confirm-starter" style="width: 100%; padding: 15px; font-size: 16px; font-weight: bold; text-transform: uppercase; transition: 0.3s;" disabled onclick="confirmStarter()">Selecione um Parceiro</button>
     </div>
-
 </div>
 
 
@@ -4013,78 +4009,90 @@ let spriteFront = finalData.sprites.front_default || finalData.sprites.other['of
 
     }
 
-function openStarterModal() {
+// 👉 DICIONÁRIO DE IDs PARA CARREGAMENTO INSTANTÂNEO DE IMAGENS
+    const STARTER_IDS = { bulbasaur:1, charmander:4, squirtle:7, pikachu:25, eevee:133, chikorita:152, cyndaquil:155, totodile:158, treecko:252, torchic:255, mudkip:258, turtwig:387, chimchar:390, piplup:393, snivy:495, tepig:498, oshawott:501, chespin:650, fennekin:653, froakie:656, rowlet:722, litten:725, popplio:728, grookey:810, scorbunny:813, sobble:816, sprigatito:906, fuecoco:909, quaxly:912 };
 
-        const select = document.getElementById('starter-select'); select.innerHTML = '';
+    // Função que acende o Pokémon escolhido
+    window.selectStarter = function(name) {
+        document.getElementById('starter-selected-value').value = name;
+        
+        // Apaga todos
+        document.querySelectorAll('.starter-card').forEach(c => {
+            c.style.border = '2px solid #34495e';
+            c.style.background = '#2c3e50';
+        });
+        
+        // Acende o selecionado
+        const selectedCard = document.getElementById('starter-card-' + name);
+        selectedCard.style.border = '2px solid #2ecc71';
+        selectedCard.style.background = 'rgba(46, 204, 113, 0.2)';
+        
+        // Libera o botão
+        const btn = document.getElementById('btn-confirm-starter');
+        btn.disabled = false;
+        btn.style.background = '#27ae60';
+        btn.innerText = `Começar com ${name.toUpperCase()}!`;
+    };
 
-        STARTERS.forEach(s => { const opt = document.createElement('option'); opt.value = s; opt.innerText = s; select.appendChild(opt); });
-
+    function openStarterModal() {
+        const grid = document.getElementById('starter-grid');
+        grid.innerHTML = ''; // Limpa a lista
+        document.getElementById('starter-selected-value').value = '';
+        
+        // Reseta o Botão
+        const btn = document.getElementById('btn-confirm-starter');
+        btn.disabled = true;
+        btn.style.background = '#95a5a6';
+        btn.innerText = "Selecione um Parceiro";
+        
+        // Desenha os sprites
+        STARTERS.forEach(s => {
+            const id = STARTER_IDS[s];
+            const imgUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
+            
+            grid.innerHTML += `
+            <div id="starter-card-${s}" class="starter-card" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding: 10px 5px; background: #2c3e50; border-radius: 8px; cursor: pointer; transition: 0.2s; border: 2px solid #34495e;" onclick="selectStarter('${s}')">
+                <img src="${imgUrl}" width="60" loading="lazy" style="image-rendering: pixelated; margin-bottom: 5px; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.5));">
+                <div style="font-size: 11px; font-weight: bold; text-transform: capitalize; color: #ecf0f1;">${s}</div>
+            </div>`;
+        });
+        
         document.getElementById('starter-modal').style.display = 'flex';
-
     }
 
-
-
     async function confirmStarter() {
-
         const nameInput = document.getElementById('new-trainer-name').value.trim() || "Ash";
-
-        const starterName = document.getElementById('starter-select').value; 
+        const starterName = document.getElementById('starter-selected-value').value; 
+        
+        if (!starterName) return; // Trava de segurança
 
         document.getElementById('starter-modal').style.display = 'none';
-
-        showLoader(`Iniciando aventura com ${starterName}...`);
-
+        showLoader(`Iniciando aventura com ${starterName.toUpperCase()}...`);
         
-
         playerTeam = []; playerBox = []; currentEnemyTeam = [];
-
         if (battleState.loopTimer) clearTimeout(battleState.loopTimer);
-
         battleState.active = false;
-
         
-
         // 👉 RESET COMPLETO (Incluindo Torneios, Missões e Pokédex)
-
         trainerState = { 
-
             name: nameInput, level: 1, exp: 0, points: 1, money: 150, 
-
             stats: { treinamento: 0, captura: 0, criacao: 0 }, 
-
             daycare: { active: false, pkmn: null, timeLeft: 0 }, 
-
             eggs: [], factories: [], inventory: {}, 
-
             activeTraining: { active: false, isTeam: false, idx: -1, statKey: '', timeLeft: 0, auto: false },
-
             activeTourney: null, tourneyWins: {}, missions: [], pokedex: {} 
-
         };
-
         
-
         try {
-
             const data = await fetchAPI(`https://pokeapi.co/api/v2/pokemon/${starterName}`);
-
             const newPkmn = await createPokemonObject(data, 5, 'custom', 'comum'); playerTeam.push(newPkmn);
-
             registerPokedex(newPkmn); 
-
             saveTrainer(); localStorage.setItem('pkmnTeam', JSON.stringify(playerTeam)); localStorage.setItem('pkmnBox', JSON.stringify(playerBox));
-
             
-
             // 👉 Força a atualização de todas as telas
-
             renderBoxAndTeam(); updateTrainerUI(); renderTourney(); 
-
             showMessage(`Sua jornada começou com ${starterName.toUpperCase()}!`);
-
         } catch(e) { console.error(e); showMessage("Erro ao obter o Inicial: " + e.message); } hideLoader();
-
     }
 
 
@@ -9020,32 +9028,31 @@ const pData = await fetchAPI(`https://pokeapi.co/api/v2/pokemon/${properName}`);
     };
 
 window.onload = async () => { 
-        if (window.innerWidth <= 768) document.querySelector('nav').classList.add('collapsed'); // Começa fechado no celular
+        if (window.innerWidth <= 768) document.querySelector('nav').classList.add('collapsed'); 
         showLoader("Sincronizando Motor do RPG...");
 
-try {
+        try {
             await carregarAtaquesDoAPK();
             loadAreaPokemon(); 
             updateFinderUI();  
             
-            await syncPokedex(); // 👈 ADICIONE O AWAIT AQUI!
+            await syncPokedex(); 
             renderMovesManager();
             renderBoxAndTeam();
 
             updateTrainerUI(); 
-
             renderTourney();
 
+            // 👉 A MÁGICA: Se o time e o PC estiverem vazios, não há Save! Abre a tela inicial.
+            if (playerTeam.length === 0 && playerBox.length === 0) {
+                openStarterModal();
+            }
+
         } catch(e) {
-
             console.error("Erro ao carregar o motor:", e);
-
         } finally {
-
             hideLoader();
-
         }
-
     };
 
 // ==========================================
