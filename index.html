@@ -528,246 +528,69 @@ nav::-webkit-scrollbar-thumb { background: #34495e; border-radius: 5px; }
 
 /* ================= RESPONSIVIDADE (MOBILE V2) ================= */
 @media (max-width: 768px) {
-            /* 👉 Botão Menu no Canto Inferior Esquerdo */
-            #toggle-sidebar {
-                top: auto !important;
-                bottom: 10px !important;
-                left: 10px !important;
-                width: 32px !important;
-                height: 32px !important;
-                font-size: 16px !important;
-                z-index: 110 !important; /* 👈 Fica na frente do menu lateral, mas ATRÁS dos pop-ups (200) */
-            }
-		#card-regions-grid { padding-bottom: 80px !important; }
-            /* 👉 Barra Rápida no Rodapé */
-            #quick-bar {
-                top: auto !important; 
-                bottom: 0 !important;
-                left: 48px !important; /* 👈 Abre espaço pro botão Menu (☰) */
-                justify-content: flex-start !important; 
-                padding: 0 5px !important; 
-                border-bottom: none !important;
-                border-top: 1px solid #bdc3c7 !important;
-                box-shadow: 0 -2px 15px rgba(0,0,0,0.15) !important;
-                z-index: 104 !important; /* 👈 Fica totalmente por trás das janelas modais */
-            }
-            .quick-btn { font-size: 22px !important; padding: 8px 4px !important; margin: 0; }
-            
-/* Evita que o conteúdo da página fique escondido atrás da barra de baixo */
-            .tab-content { padding-bottom: 60px !important; }
-            .padding-wrap { padding-top: 20px !important; } /* Reseta o topo já que a barra desceu */
-            .battle-panel { padding-bottom: 55px !important; }
-            
-            /* 👉 Dá um respiro pro último Pokémon da Box não ficar debaixo do Menu */
-            #my-box-grid, #my-team-grid { padding-bottom: 70px !important; }
-
-            /* ================= AJUSTES MODAL POKÉMON (MOBILE) ================= */
-            #pkmn-modal .modal-content > div:nth-child(2) { flex-direction: column !important; gap: 10px !important; }
-            #pkmn-modal .modal-content > div:nth-child(2) > div:first-child { width: 100% !important; }
-
-            #modal-view-evs p { font-size: 10px !important; padding: 6px !important; }
-
-            .ev-row { padding: 6px !important; }
-
-            .ev-row span { width: auto !important; font-size: 10px !important; }
-
-            .ev-label { font-size: 10px !important; font-weight: bold; }
-
-            
-
-            body { padding: 0; } 
-
-            #app { border-radius: 0; max-height: 100dvh; } 
-
-            .grid-2 { grid-template-columns: 1fr; gap: 15px; }
-
-            
-
-nav { 
-                position: absolute; /* Flutua sobre a tela no celular */
-                height: 100%; 
-                left: 0; 
-                top: 0; 
-                z-index: 105; /* Abaixo apenas do botão de fechar */
-                box-shadow: 5px 0 20px rgba(0,0,0,0.7); 
-            }
-
-
-
-            /* ================= AJUSTES DA ARENA DE BATALHA ================= */
-
-            .arena-bg { 
-
-                min-height: 200px; /* 👈 Arena ainda menor */
-
-                background: linear-gradient(180deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.3) 35%, #7bed9f 35%, #2ed573 100%);
-
-            }
-
-            .sprite { 
-
-                width: 85px; height: 85px; /* Sprites ajustados */
-
-                z-index: 2; 
-
-            }
-
-	#enemy-pos { 
-                top: 65px; /* 👈 Aumentado de 15px para encostar na grama */
-                right: 35px; 
-                gap: 5px; 
-            }
-
-            #player-pos { 
-
-                bottom: 15px; left: 10px; 
-
-                gap: 5px; 
-
-            }
-
-            
-
-            /* HUD (Barras de Vida) */
-
-            .hud { 
-
-                width: 150px; /* Mais compacto */
-
-                padding: 4px 8px; 
-
-                font-size: 11px; 
-
-            }
-
-            .hud-header { font-size: 11px; margin-bottom: 2px; }
-
-            .hp-bar-bg { height: 6px; margin-bottom: 2px; }
-
-            .cd-bar-bg { height: 4px; }
-
-
-
-            /* Painel de Controle da Batalha */
-
-            .battle-panel { height: auto; flex: 1; } /* Se adapta ao espaço restante */
-
-            .controls-area { flex-direction: column; padding: 5px; gap: 5px; }
-
-            .moves-grid { flex: none; grid-template-columns: 1fr 1fr; gap: 5px; }
-
-            .moves-grid button { padding: 6px; font-size: 11px; } 
-
-            .action-panel { flex: none; gap: 5px; padding: 8px; }
-
-            .action-panel .btn { padding: 8px; font-size: 11px; } 
-
-            .action-panel select { padding: 6px; font-size: 11px; } 
-
-            
-
-            /* 👈 Log de Batalha Maior e Legível */
-
-            .log-box { 
-
-                min-height: 80px; 
-
-                font-size: 12px; 
-
-                padding: 8px 10px; 
-
-            }
-
-
-
-            /* ================= AJUSTES DA POKÉDEX ================= */
-
-            /* 👈 Forçando a barra de filtros a empilhar em coluna */
-
-            #tab-pokedex > div:nth-child(2) {
-
-                flex-direction: column !important;
-
-                gap: 8px !important;
-
-            }
-
-            #dex-region-select, #dex-search {
-
-                width: 100% !important;
-
-                flex: none !important;
-
-                padding: 8px !important;
-
-                font-size: 12px !important;
-
-            }
-
-            /* Título e Contador empilhados */
-
-            #tab-pokedex > div:nth-child(1) {
-
-                flex-direction: column;
-
-                align-items: flex-start;
-
-                gap: 10px;
-
-            }
-
-
-
-            /* Lista da Pokédex */
-
-            #pokedex-list { gap: 8px; padding-bottom: 10px; }
-
-            .dex-row { padding: 10px; gap: 8px; font-size: 11px; flex-wrap: wrap; }
-
-            .dex-row img { width: 35px; height: 35px; margin-right: 5px; } 
-
-            .dex-variants { gap: 3px; margin-top: 5px; width: 100%; justify-content: space-between;}
-
-            .dex-row .btn { padding: 8px; font-size: 11px; width: 100%; margin-left: 0; margin-top: 5px;}
-
-
-
-/* Modais (Pop-ups) adaptados */
-            .modal-content { 
-                width: 95%; 
-                padding: 15px; 
-                max-height: calc(100dvh - 90px); /* 👈 Nunca vai encostar na barra de baixo */
-                align-self: flex-start; /* 👈 Gruda o card lá no topo da tela */
-                margin-top: 15px; /* 👈 Só dá um respiro do teto */
-                overflow-y: auto; 
-            }
-            
-            /* 👇 Esta é a linha nova que trava o cabeçalho no celular */
-            .modal-header { top: -15px; margin: -15px -15px 15px -15px; padding: 15px 15px 10px 15px; }
-
-            .modal-header h3 { font-size: 18px; }
-            .box-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); } 
-
-            /* 👉 Modais de Mensagem e Batalha no alcance do dedão (Mobile) */
-            #msg-modal, #confirm-modal {
-                align-items: flex-end !important; /* Empurra para o fundo da tela */
-                padding-bottom: 70px !important; /* Evita ficar atrás da barra rápida */
-            }
-            #msg-modal .modal-content, #confirm-modal .modal-content {
-                width: 100% !important;
-                max-height: max-content; /* Deixa o balão se ajustar ao texto */
-                border-radius: 24px 24px 8px 8px !important;
-                margin: 0 10px !important;
-                align-self: flex-end !important;
-                animation: slideUp 0.2s ease-out; /* Efeitinho suave subindo */
-            }
-            @keyframes slideUp { 
-                from { transform: translateY(50px); opacity: 0; } 
-                to { transform: translateY(0); opacity: 1; } 
-            }
-        } /* 👈 ESSA É A CHAVE QUE FECHA O @MEDIA DO CELULAR, NÃO APAGUE ELA! */
-
-
+    /* 👉 Botão Menu no Canto Inferior Esquerdo */
+    #toggle-sidebar {
+        top: auto !important;
+        bottom: 10px !important;
+        left: 10px !important;
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 16px !important;
+        z-index: 110 !important;
+    }
+    
+    /* 👉 CORREÇÃO: Espaço garantido no fundo para Paldea não ficar atrás do menu! */
+    .tab-content { padding-bottom: 95px !important; }
+    .padding-wrap { padding-top: 20px !important; }
+    #card-regions-grid { padding-bottom: 20px !important; }
+    #my-box-grid, #my-team-grid { padding-bottom: 90px !important; }
+    .battle-panel { padding-bottom: 55px !important; }
+    
+    /* 👉 Barra Rápida no Rodapé */
+    #quick-bar {
+        top: auto !important; 
+        bottom: 0 !important;
+        left: 48px !important;
+        justify-content: flex-start !important; 
+        padding: 0 5px !important; 
+        border-bottom: none !important;
+        border-top: 1px solid #bdc3c7 !important;
+        box-shadow: 0 -2px 15px rgba(0,0,0,0.15) !important;
+        z-index: 104 !important;
+    }
+    .quick-btn { font-size: 22px !important; padding: 8px 4px !important; margin: 0; }
+    
+    body { padding: 0; } 
+    #app { border-radius: 0; max-height: 100dvh; } 
+    .grid-2 { grid-template-columns: 1fr; gap: 15px; }
+    
+    nav { 
+        position: absolute; height: 100%; left: 0; top: 0; z-index: 105; box-shadow: 5px 0 20px rgba(0,0,0,0.7); 
+    }
+
+    /* 👉 CORREÇÃO: Modais (Pop-ups) adaptados para não travar a rolagem */
+    .modal-content { 
+        width: 95%; 
+        padding: 15px; 
+        max-height: 85dvh !important; /* Mais margem do topo e do fundo */
+        align-self: center !important; 
+        margin-top: 10px; 
+        overflow-y: auto !important; 
+    }
+    
+    .modal-header { top: -15px; margin: -15px -15px 15px -15px; padding: 15px 15px 10px 15px; }
+    .box-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); } 
+
+    #msg-modal, #confirm-modal {
+        align-items: flex-end !important;
+        padding-bottom: 70px !important;
+    }
+    #msg-modal .modal-content, #confirm-modal .modal-content {
+        width: 100% !important; max-height: max-content !important; border-radius: 24px 24px 8px 8px !important; margin: 0 10px !important; align-self: flex-end !important; animation: slideUp 0.2s ease-out;
+    }
+    @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+} 
+/* 👈 ESSA É A CHAVE QUE FECHA O @MEDIA DO CELULAR, NÃO APAGUE ELA! */
     </style>
 
 </head>
@@ -1447,7 +1270,12 @@ nav {
 
 <!-- ABA: FICHA DO TREINADOR -->
     <div id="tab-card" class="tab-content padding-wrap">
-        <h2>🪪 Ficha do Treinador</h2>
+        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+            <div style="width: 60px; height: 60px; background: #e2e8f0; border-radius: 50%; overflow: hidden; border: 3px solid var(--primary); display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
+                <img id="card-trainer-sprite" src="" style="width: 120%; height: 120%; object-fit: contain; image-rendering: pixelated; transform: translateY(5px);">
+            </div>
+            <h2 style="border: none; margin: 0; padding: 0;">🪪 Ficha de <span id="card-trainer-name">Treinador</span></h2>
+        </div>
         
         <div style="background:#ecf0f1; padding:15px; border-radius:8px; border-left:4px solid var(--primary); margin-bottom: 20px;">
             <h3 style="margin-top:0; color:var(--secondary); margin-bottom: 15px;">Resumo da Jornada</h3>
@@ -5527,6 +5355,11 @@ function renderTrainerCard() {
         const container = document.getElementById('card-regions-grid');
         if (!container) return;
         
+        // 👉 INJETA A IMAGEM E O NOME NA FICHA
+        const avatar = trainerState.avatar || 'red';
+        document.getElementById('card-trainer-sprite').src = `https://play.pokemonshowdown.com/sprites/trainers/${avatar}.png`;
+        document.getElementById('card-trainer-name').innerText = trainerState.name;
+        
         // Garante que o objeto existe (migração para saves antigos)
         if (!trainerState.lifetime) trainerState.lifetime = { totalKOsLevel: 0, totalCaptures: 0, totalEggs: 0, totalPkmnExp: 0, totalBattles: 0, totalWins: 0 };
         const life = trainerState.lifetime;
@@ -9539,14 +9372,18 @@ window.activateGimmick = async function() {
 
             let html = '';
             data.items.forEach(item => {
-                // Destaca a sua própria linha de verde!
                 const isMe = item.player && item.player.name === trainerState.name ? 'background: #e8f8f5; font-weight: bold; border-left: 4px solid var(--primary);' : '';
                 const rank = item.rank;
                 const name = item.player ? (item.player.name || 'Anônimo') : 'Anônimo';
                 
+                // 👉 TENTA PEGAR O AVATAR (Padrão para 'red' se não achar)
+                let avatar = 'red';
+                // Opcional: Se quiser implementar salvar avatar na cloud no futuro, 
+                // daria para puxar de item.metadata. Mas por hora, 'red' genérico para NPCs
+                if (isMe && trainerState.avatar) avatar = trainerState.avatar;
+
                 let scoreDisplay = '';
                 if (tabId === 'topmon') {
-                    // Mágica: Mostra o nome do Pokémon junto com o Level no Score!
                     scoreDisplay = `Lv. ${item.score} <br><span style="font-size:10px; color:#7f8c8d; font-weight:normal;">${item.metadata || ''}</span>`;
                 } else {
                     scoreDisplay = item.score.toLocaleString('pt-BR');
@@ -9554,7 +9391,10 @@ window.activateGimmick = async function() {
 
                 html += `<tr style="border-bottom: 1px solid #dfe6e9; ${isMe}">
                     <td style="text-align:center; padding: 8px;">#${rank}</td>
-                    <td style="padding: 8px;">${name}</td>
+                    <td style="padding: 8px; display: flex; align-items: center; gap: 8px; border:none;">
+                        <img src="https://play.pokemonshowdown.com/sprites/trainers/${avatar}.png" style="width:30px; height:30px; image-rendering: pixelated; border-radius:50%; background:#ecf0f1; border:1px solid #bdc3c7;">
+                        ${name}
+                    </td>
                     <td style="text-align:center; padding: 8px; color:var(--primary); font-weight:bold;">${scoreDisplay}</td>
                 </tr>`;
             });
