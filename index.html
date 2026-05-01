@@ -3149,6 +3149,8 @@ function resolveGroupPhase() {
 
     };
 
+
+
     function getTypeMod(moveType, defenderTypes) { let mod = 1; if (!TYPE_CHART[moveType]) return 1; defenderTypes.forEach(t => { if (TYPE_CHART[moveType][t] !== undefined) mod *= TYPE_CHART[moveType][t]; }); return mod; }
 
 
@@ -3159,7 +3161,48 @@ const VARIANTS = { comum: { name: "Comum", color: "transparent", mult: {} }, shi
 
     const STARTERS = ['bulbasaur', 'charmander', 'squirtle', 'pikachu', 'eevee', 'chikorita', 'cyndaquil', 'totodile', 'treecko', 'torchic', 'mudkip', 'turtwig', 'chimchar', 'piplup', 'snivy', 'tepig', 'oshawott', 'chespin', 'fennekin', 'froakie', 'rowlet', 'litten', 'popplio', 'grookey', 'scorbunny', 'sobble', 'sprigatito', 'fuecoco', 'quaxly'];
 
+// 👉 TRADUTOR DE FOTOS DOS LÍDERES (BLINDADO 100%)
+    function getLeaderSprite(name) {
+        let cleanName = name.toLowerCase()
+            .replace('leader ', '')
+            .replace('elite four ', '')
+            .replace('champion ', '')
+            .replace(' (trial)', '')
+            .replace(' (elite)', '')
+            .replace(/[\.\'-]/g, '') 
+            .replace(/&/g, 'and')    
+            .trim()
+            .replace(/\s+/g, '');    
+            
+        // Dicionário Oficial de Exceções do Servidor
+        const exceptions = {
+            'rival': 'blue',
+            'stevenstone': 'steven',
+            'trialdragão': 'ryuki',
+            'kukui': 'kukui-stand',
+            
+            // Kanto E4
+            'lorelei': 'lorelei-gen3', 
+            'agatha': 'agatha-gen3',   
+            'lance': 'lance-gen3',
+            
+            // Hoenn Gym & E4
+            'tateandliza': 'tateandliza-gen6',
+            'sidney': 'sidney-gen3',
+            'phoebe': 'phoebe-gen3',
+            'glacia': 'glacia-gen3',
+            'drake': 'drake-gen3',
+            
+            // Paldea (Personagens muitos novos)
+            'nemona': 'nemona-masters'
+        };
 
+        if (exceptions[cleanName]) {
+            cleanName = exceptions[cleanName];
+        }
+
+        return `https://play.pokemonshowdown.com/sprites/trainers/${cleanName}.png`;
+    }
 
 function rollVariant(boost = 0, parentVariant = null, isEgg = false) {
         const r = Math.random(); 
@@ -8724,7 +8767,7 @@ function renderGyms() {
         }
         const state = trainerState.league[rId];
         const prestige = state.prestige || 0;
-        const mult = Math.pow(2, prestige); // 👉 Dobra os leveis a cada Prestígio!
+        const mult = Math.pow(2, prestige); 
         
         let buffAmount = 0;
         if (state.g >= 8) buffAmount += 0.10; 
@@ -8736,6 +8779,7 @@ function renderGyms() {
             🌟 <b>Bônus Regional Ativo:</b> +${(buffAmount * 100).toFixed(0)}% de Chance de Captura extra na região de ${data.name}.
         </div>`;
         
+        // 1. RENDERIZA OS GINÁSIOS COM FOTO
         for (let i = 0; i < 8; i++) {
             const gym = data.gyms[i];
             const isBeaten = state.g > i;
@@ -8750,11 +8794,15 @@ function renderGyms() {
             } else btnHtml = `<button class="btn" disabled>Bloqueado</button>`;
 
             html += `<div style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:12px; border-radius:8px; border:1px solid ${isUnlocked ? '#3498db' : '#bdc3c7'}; opacity: ${isBeaten ? '0.6' : '1'};">
-                <div><b>${i+1}º Ginásio: ${gym.n}</b> ${typeHtml}<br><span style="font-size:11px; color:#7f8c8d;">Nível Médio: ${gym.l * mult}</span></div>
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <img src="${getLeaderSprite(gym.n)}" style="width: 45px; height: 45px; object-fit: contain; image-rendering: pixelated; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.2));">
+                    <div><b>${i+1}º Ginásio: ${gym.n}</b> ${typeHtml}<br><span style="font-size:11px; color:#7f8c8d;">Nível Médio: ${gym.l * mult}</span></div>
+                </div>
                 ${btnHtml}
             </div>`;
         }
 
+        // 2. RENDERIZA A ELITE 4 COM FOTO
         if (data.e4.length > 0) {
             html += `<h3 style="margin-top:15px; color:var(--secondary); border-bottom: 2px solid #ccc; padding-bottom:5px;">Elite 4</h3>`;
             for (let i = 0; i < data.e4.length; i++) {
@@ -8767,12 +8815,16 @@ function renderGyms() {
                               isUnlocked ? `<button class="btn" style="background:#8e44ad;" onclick="startLeagueBattle(${rId}, 'e4', ${i})">Desafiar E4!</button>` : `<button class="btn" disabled>Bloqueado</button>`;
 
                 html += `<div style="display:flex; justify-content:space-between; align-items:center; background:#f4f1ea; padding:12px; border-radius:8px; border:1px solid ${isUnlocked ? '#8e44ad' : '#bdc3c7'}; opacity: ${isBeaten ? '0.6' : '1'};">
-                    <div><b>Membro: ${e4.n}</b> ${typeHtml}<br><span style="font-size:11px; color:#7f8c8d;">Nível Médio: ${e4.l * mult}</span></div>
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <img src="${getLeaderSprite(e4.n)}" style="width: 45px; height: 45px; object-fit: contain; image-rendering: pixelated; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.2));">
+                        <div><b>Membro: ${e4.n}</b> ${typeHtml}<br><span style="font-size:11px; color:#7f8c8d;">Nível Médio: ${e4.l * mult}</span></div>
+                    </div>
                     ${btnHtml}
                 </div>`;
             }
         }
 
+        // 3. RENDERIZA O CAMPEÃO COM FOTO
         const champ = data.champ;
         const champUnlocked = state.g >= 8 && (data.e4.length === 0 || state.e >= data.e4.length);
         const typeHtml = `<span class="type-badge type-normal" style="background:#34495e; font-size:10px; padding:2px 5px;">Mestre</span>`;
@@ -8783,7 +8835,10 @@ function renderGyms() {
 
         html += `<h3 style="margin-top:15px; color:#f39c12; border-bottom: 2px solid #f39c12; padding-bottom:5px;">Campeão Regional${pText}</h3>
             <div style="display:flex; justify-content:space-between; align-items:center; background:#fdfae6; padding:15px; border-radius:8px; border:2px solid #f1c40f;">
-                <div><b>👑 ${champ.n}</b> ${typeHtml}<br><span style="font-size:11px; color:#7f8c8d;">Nível Médio: ${champ.l * mult}</span></div>
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <img src="${getLeaderSprite(champ.n)}" style="width: 55px; height: 55px; object-fit: contain; image-rendering: pixelated; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">
+                    <div><b>👑 ${champ.n}</b> ${typeHtml}<br><span style="font-size:11px; color:#7f8c8d;">Nível Médio: ${champ.l * mult}</span></div>
+                </div>
                 ${champBtn}
             </div>`;
 
