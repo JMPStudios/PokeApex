@@ -7094,14 +7094,20 @@ function getMaxCd(pkmn) {
         if (!pkmn || !pkmn.stats) return 2200;
         const speed = getModifiedStat(pkmn, 'spe');
         
-        // 👉 A Base Perfeita: 2200ms (2.2 segundos)
-        // Garante que o tanque mais lento do jogo ataque sempre antes do 3º golpe 
-        // do Pokémon mais rápido do jogo.
-        const calculatedCd = Math.floor(2200 * (200 / (200 + speed)));
+        // 👉 A MÁGICA DA CORREÇÃO: Escala Dinâmica por Nível!
+        // Em vez de usar um limitador fixo, a "régua" de proporção cresce com o Pokémon.
+        // Isso garante que a diferença de velocidade entre um tanque e um velocista seja eterna, 
+        // não importa se estão no Nível 5 ou no Nível 5.000!
+        const levelScale = Math.max(100, pkmn.level * 2.5);
         
-        return Math.max(600, calculatedCd);
+        // A Base Perfeita: 2200ms (2.2 segundos)
+        const calculatedCd = Math.floor(2200 * (levelScale / (levelScale + speed)));
+        
+        // Reduzimos o hard-cap mínimo para 400ms. 
+        // Assim, usar "Agility" (Buff de Velocidade) ou o "Despertar" continua sendo útil
+        // mesmo para Pokémon que já são naturalmente muito rápidos!
+        return Math.max(500, calculatedCd);
     }
-
 
 
 async function battleLoop() {
@@ -8304,10 +8310,14 @@ async function attemptCatch() {
             const wildRegionId = document.getElementById('wild-region')?.value || "1";
             if (!trainerState.league) trainerState.league = {};
             const leagueData = trainerState.league[wildRegionId];
+            
             if (leagueData) {
-                if (leagueData.g >= 8) leagueBuff += 0.10;
-                if (wildRegionId == 8 ? leagueData.g >= 8 : leagueData.e >= 4) leagueBuff += 0.15;
-                if (leagueData.c) leagueBuff += 0.25;
+                const prestige = leagueData.prestige || 0;
+                
+                // Mesma lógica distribuída: 5% + 5% + 10% com escalonamento por conclusão (prestígio)
+                if (leagueData.g >= 8 || prestige > 0) leagueBuff += 0.05 + (prestige * 0.001);
+                if ((wildRegionId == 8 ? leagueData.g >= 8 : leagueData.e >= 4) || prestige > 0) leagueBuff += 0.05 + (prestige * 0.001);
+                if (leagueData.c || prestige > 0) leagueBuff += 0.10 + (prestige * 0.002);
             }
         } catch (err) {}
 
@@ -8760,13 +8770,22 @@ function renderGyms() {
         const mult = Math.pow(2, prestige); 
         
         let buffAmount = 0;
-        if (state.g >= 8) buffAmount += 0.10; 
-        if (state.e >= data.e4.length && data.e4.length > 0) buffAmount += 0.15; 
-        if (rId == 8 && state.g >= 8) buffAmount += 0.15; 
-        if (state.c) buffAmount += 0.25;
+        
+        // 5% Ginásios (+ 0.1% a cada Prestígio)
+        if (state.g >= 8 || prestige > 0) buffAmount += 0.05 + (prestige * 0.001); 
+        
+        // 5% Elite 4 (+ 0.1% a cada Prestígio)
+        if ((state.e >= data.e4.length && data.e4.length > 0) || prestige > 0) buffAmount += 0.05 + (prestige * 0.001); 
+        
+        // Tratamento da Região de Galar (Região 8 não tem E4 no código)
+        if ((rId == 8 && state.g >= 8) || (rId == 8 && prestige > 0)) buffAmount += 0.05 + (prestige * 0.001); 
+        
+        // 10% Campeão (+ 0.2% a cada Prestígio)
+        if (state.c || prestige > 0) buffAmount += 0.10 + (prestige * 0.002);
 
+        // Mudei para toFixed(1) para mostrar as casas decimais (ex: 20.4%)
         let html = `<div style="background:#e8f8f5; border:1px solid #2ecc71; padding:10px; border-radius:8px; font-size:12px; margin-bottom:10px;">
-            🌟 <b>Bônus Regional Ativo:</b> +${(buffAmount * 100).toFixed(0)}% de Chance de Captura extra na região de ${data.name}.
+            🌟 <b>Bônus Regional Ativo:</b> +${(buffAmount * 100).toFixed(1)}% de Chance de Captura extra na região de ${data.name}.
         </div>`;
         
         // 1. RENDERIZA OS GINÁSIOS COM FOTO
@@ -8818,7 +8837,9 @@ function renderGyms() {
         const champ = data.champ;
         const champUnlocked = state.g >= 8 && (data.e4.length === 0 || state.e >= data.e4.length);
         const typeHtml = `<span class="type-badge type-normal" style="background:#34495e; font-size:10px; padding:2px 5px;">Mestre</span>`;
-        let champBtn = state.c ? `<button class="btn" style="background:#f1c40f; color:#333;" onclick="startLeagueBattle(${rId}, 'champ', 0)">Revanche!</button>` : 
+        
+        // 👉 AQUI A MUDANÇA: O botão agora diz "Prestígio!" em vez de Revanche!
+        let champBtn = state.c ? `<button class="btn" style="background:#f1c40f; color:#333; font-weight:bold;" onclick="startLeagueBattle(${rId}, 'champ', 0)">Prestígio!</button>` : 
                        champUnlocked ? `<button class="btn" style="background:#f39c12;" onclick="startLeagueBattle(${rId}, 'champ', 0)">Batalha Final!</button>` : `<button class="btn" disabled>Bloqueado</button>`;
 
         let pText = prestige > 0 ? ` <span style="color:#e74c3c; font-weight:bold;">(Prestígio ${prestige} - Nível x${mult})</span>` : '';
