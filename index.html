@@ -20,7 +20,22 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
 
-        body { background-color: var(--secondary); display: flex; justify-content: center; align-items: center; min-height: 100vh; color: var(--text); padding: 20px;}
+        body { 
+            background-color: var(--secondary); display: flex; justify-content: center; align-items: center; min-height: 100vh; color: var(--text); padding: 20px;
+            /* 👇 TRAVA DE SELEÇÃO DE TEXTO GLOBAL 👇 */
+            user-select: none;
+            -webkit-user-select: none; /* Safari/Chrome */
+            -moz-user-select: none; /* Firefox */
+            -ms-user-select: none; /* IE/Edge */
+        }
+        
+        /* 👇 DESTRAVA A SELEÇÃO APENAS ONDE É PRECISO DIGITAR 👇 */
+        input, textarea, select {
+            user-select: text;
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+        }
 
         
 
@@ -1291,8 +1306,9 @@ nav::-webkit-scrollbar-thumb { background: #34495e; border-radius: 5px; }
 	
 	<button class="nav-btn" data-target="tab-ranking" onclick="switchTab('tab-ranking')">Hall da Fama</button>
 
-        <button class="nav-btn" data-target="tab-battle" onclick="switchTab('tab-battle')" id="nav-battle" disabled>Batalha Atual</button>
-<button class="nav-btn" data-target="tab-help" onclick="switchTab('tab-help')">Manual do Treinador</button>
+        <button class="nav-btn" data-target="tab-help" onclick="switchTab('tab-help')">Manual do Treinador</button>
+	
+	<button class="nav-btn" data-target="tab-battle" onclick="switchTab('tab-battle')" id="nav-battle" disabled>Batalha Atual</button>
 
 
 
@@ -7106,7 +7122,7 @@ function getMaxCd(pkmn) {
         // Reduzimos o hard-cap mínimo para 400ms. 
         // Assim, usar "Agility" (Buff de Velocidade) ou o "Despertar" continua sendo útil
         // mesmo para Pokémon que já são naturalmente muito rápidos!
-        return Math.max(500, calculatedCd);
+        return Math.max(450, calculatedCd);
     }
 
 
