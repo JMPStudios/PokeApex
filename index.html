@@ -8820,19 +8820,18 @@ function renderGyms() {
         let pText = prestige > 0 ? ` <span style="color:#e74c3c; font-weight:bold;">(Prestígio ${prestige} - Nível x${mult})</span>` : '';
 
         html += `<h3 style="margin-top:15px; color:#f39c12; border-bottom: 2px solid #f39c12; padding-bottom:5px;">Campeão Regional${pText}</h3>
-            <div style="display:flex; justify-content:space-between; align-items:center; background:#fdfae6; padding:15px; border-radius:8px; border:2px solid #f1c40f;">
-                <div style="display:flex; align-items:center; gap:12px;">
-                    <img src="${getLeaderSprite(champ.n)}" style="width: 55px; height: 55px; object-fit: contain; image-rendering: pixelated; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">
-                    <div><b>👑 ${champ.n}</b> ${typeHtml}<br><span style="font-size:11px; color:#7f8c8d;">Nível Médio: ${champ.l * mult}</span></div>
-                </div>
-                ${champBtn}
-            </div>`;
+            <div style="display:flex; justify-content:space-between; align-items:center; background:#fdfae6; padding:15px; border-radius:8px; border:2px solid #f1c40f;">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <img src="${getLeaderSprite(champ.n)}" style="width: 55px; height: 55px; object-fit: contain; image-rendering: pixelated; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">
+                    <div><b>👑 ${champ.n}</b> ${typeHtml}<br><span style="font-size:11px; color:#7f8c8d;">Nível Médio: ${champ.l * mult}</span></div>
+                </div>
+                ${champBtn}
+            </div>`;
 
-        }
-        container.innerHTML = html;
-    }
+        container.innerHTML = html;
+    }
 
-    async function generateLeagueTeamSignature(type, baseLevel, count, regionId = 1) {
+    async function generateLeagueTeamSignature(type, baseLevel, count, regionId = 1) {
         let validMons = [];
 
         if (type === 'any') {
