@@ -8828,46 +8828,57 @@ function renderGyms() {
                 ${champBtn}
             </div>`;
 
+        }
         container.innerHTML = html;
     }
 
-    async function generateLeagueTeamSignature(type, baseLevel, count) {
-
-        let validNames = [];
+    async function generateLeagueTeamSignature(type, baseLevel, count, regionId = 1) {
+        let validMons = [];
 
         if (type === 'any') {
-
-            // Pool de Pokémon fortes para campeões que não têm tipo específico
-
-            validNames = ['charizard', 'garchomp', 'metagross', 'sylveon', 'tyranitar', 'dragonite', 'volcarona', 'lucario', 'togekiss', 'arcanine', 'gyarados', 'snorlax', 'lapras', 'gengar', 'alakazam', 'machamp', 'scizor', 'haxorus', 'aegislash', 'excadrill'];
-
+            // Pool de Pokémon fortes para campeões que não têm tipo específico (agora com IDs para filtro)
+            validMons = [
+                {n: 'charizard', id: 6}, {n: 'garchomp', id: 445}, {n: 'metagross', id: 376}, {n: 'sylveon', id: 700}, 
+                {n: 'tyranitar', id: 248}, {n: 'dragonite', id: 149}, {n: 'volcarona', id: 637}, {n: 'lucario', id: 448}, 
+                {n: 'togekiss', id: 468}, {n: 'arcanine', id: 59}, {n: 'gyarados', id: 130}, {n: 'snorlax', id: 143}, 
+                {n: 'lapras', id: 131}, {n: 'gengar', id: 94}, {n: 'alakazam', id: 65}, {n: 'machamp', id: 68}, 
+                {n: 'scizor', id: 212}, {n: 'haxorus', id: 612}, {n: 'aegislash', id: 681}, {n: 'excadrill', id: 530}
+            ];
         } else {
-
             const tData = await fetchAPI(`https://pokeapi.co/api/v2/type/${type}`);
-
-            validNames = tData.pokemon.map(p => p.pokemon.name).filter(n => !n.includes('-') && !isLegendary(n));
-
+            validMons = tData.pokemon.map(p => ({
+                n: p.pokemon.name,
+                id: parseInt(p.pokemon.url.split('/')[6])
+            })).filter(p => !p.n.includes('-') && !isLegendary(p.n));
         }
-
         
-
+        // Pega o limite de IDs da região atual
+        const [minId, maxId] = REGION_RANGES[regionId] || [1, 151];
+        
+        // Separa os Pokémon da região dos estrangeiros
+        const regionalMons = validMons.filter(p => p.id >= minId && p.id <= maxId);
+        const foreignMons = validMons.filter(p => p.id < minId || p.id > maxId);
+        
         let team = [];
-
         for(let i=0; i < count; i++) {
+            let chosenPool = validMons; // Padrão: escolhe de todos
+            
+            // 👉 A MÁGICA DOS 70%: Sorteia se vai tentar pegar da região!
+            // (Só tenta se existir algum Pokémon daquele tipo na região local)
+            if (Math.random() <= 0.70 && regionalMons.length > 0) {
+                chosenPool = regionalMons;
+            } else if (foreignMons.length > 0) {
+                chosenPool = foreignMons; // Cai nos 30% ou não tem bicho da região
+            }
 
-            const name = validNames[Math.floor(Math.random() * validNames.length)];
-
+            const selected = chosenPool[Math.floor(Math.random() * chosenPool.length)];
             const lvl = Math.max(1, Math.min(100, baseLevel + Math.floor(Math.random() * 5) - 2)); // Varia de -2 a +2
-
-            team.push({ n: name, l: lvl });
-
+            
+            team.push({ n: selected.n, l: lvl });
         }
 
         return team;
-
     }
-
-
 
 async function startLeagueBattle(regionId, battleType, index) {
         if(playerTeam.length === 0) return showMessage("Você precisa de uma equipe para lutar na Liga!");
@@ -8890,8 +8901,8 @@ async function startLeagueBattle(regionId, battleType, index) {
         showLoader(`Viajando até o campo de batalha...`);
         try {
             if (!trainerState.leagueTeams[teamKey] || isRevanche) {
-                // 👇 ENVIA O NÍVEL CORRETO (COM MULTIPLICADOR) PARA A FUNÇÃO GERAR A EQUIPE
-                const signature = await generateLeagueTeamSignature(targetData.t, actualLevel, pkmCount);
+                // 👇 AQUI A CORREÇÃO: Passando o 'regionId' como quarto parâmetro!
+                const signature = await generateLeagueTeamSignature(targetData.t, actualLevel, pkmCount, regionId);
                 trainerState.leagueTeams[teamKey] = signature;
                 saveTrainer();
             }
