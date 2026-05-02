@@ -539,12 +539,15 @@ nav::-webkit-scrollbar-thumb { background: #34495e; border-radius: 5px; }
         z-index: 110 !important;
     }
     
-    /* 👉 CORREÇÃO: Espaço garantido no fundo para Paldea não ficar atrás do menu! */
-    .tab-content { padding-bottom: 95px !important; }
+    /* 👉 CORREÇÃO DA ROLAGEM CORTADA (PALDEA ESCONDIDA) */
+    .tab-content { padding-bottom: 50px !important; }
     .padding-wrap { padding-top: 20px !important; }
-    #card-regions-grid { padding-bottom: 20px !important; }
-    #my-box-grid, #my-team-grid { padding-bottom: 90px !important; }
-    .battle-panel { padding-bottom: 55px !important; }
+    
+    /* Injetamos uma margem "fantasma" gigante no final da página para forçar o scroll */
+    #card-regions-grid { padding-bottom: 50px !important; margin-bottom: 25px !important; }
+    #gyms-container { padding-bottom: 50px !important; margin-bottom: 25px !important; }
+    #my-box-grid, #my-team-grid { padding-bottom: 50px !important; margin-bottom: 25px !important; }
+    .battle-panel { padding-bottom: 25px !important; }
     
     /* 👉 Barra Rápida no Rodapé */
     #quick-bar {
@@ -568,29 +571,178 @@ nav::-webkit-scrollbar-thumb { background: #34495e; border-radius: 5px; }
         position: absolute; height: 100%; left: 0; top: 0; z-index: 105; box-shadow: 5px 0 20px rgba(0,0,0,0.7); 
     }
 
-    /* 👉 CORREÇÃO: Modais (Pop-ups) adaptados para não travar a rolagem */
-    .modal-content { 
-        width: 95%; 
-        padding: 15px; 
-        max-height: 85dvh !important; /* Mais margem do topo e do fundo */
-        align-self: center !important; 
-        margin-top: 10px; 
-        overflow-y: auto !important; 
-    }
-    
-    .modal-header { top: -15px; margin: -15px -15px 15px -15px; padding: 15px 15px 10px 15px; }
-    .box-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); } 
+    /* ================= AJUSTES DA ARENA DE BATALHA ================= */
 
-    #msg-modal, #confirm-modal {
-        align-items: flex-end !important;
-        padding-bottom: 70px !important;
-    }
-    #msg-modal .modal-content, #confirm-modal .modal-content {
-        width: 100% !important; max-height: max-content !important; border-radius: 24px 24px 8px 8px !important; margin: 0 10px !important; align-self: flex-end !important; animation: slideUp 0.2s ease-out;
-    }
-    @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-} 
-/* 👈 ESSA É A CHAVE QUE FECHA O @MEDIA DO CELULAR, NÃO APAGUE ELA! */
+            .arena-bg { 
+
+                min-height: 200px; /* 👈 Arena ainda menor */
+
+                background: linear-gradient(180deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.3) 35%, #7bed9f 35%, #2ed573 100%);
+
+            }
+
+            .sprite { 
+
+                width: 85px; height: 85px; /* Sprites ajustados */
+
+                z-index: 2; 
+
+            }
+
+	#enemy-pos { 
+                top: 65px; /* 👈 Aumentado de 15px para encostar na grama */
+                right: 35px; 
+                gap: 5px; 
+            }
+
+            #player-pos { 
+
+                bottom: 15px; left: 10px; 
+
+                gap: 5px; 
+
+            }
+
+            
+
+            /* HUD (Barras de Vida) */
+
+            .hud { 
+
+                width: 150px; /* Mais compacto */
+
+                padding: 4px 8px; 
+
+                font-size: 11px; 
+
+            }
+
+            .hud-header { font-size: 11px; margin-bottom: 2px; }
+
+            .hp-bar-bg { height: 6px; margin-bottom: 2px; }
+
+            .cd-bar-bg { height: 4px; }
+
+
+
+            /* Painel de Controle da Batalha */
+
+            .battle-panel { height: auto; flex: 1; } /* Se adapta ao espaço restante */
+
+            .controls-area { flex-direction: column; padding: 5px; gap: 5px; }
+
+            .moves-grid { flex: none; grid-template-columns: 1fr 1fr; gap: 5px; }
+
+            .moves-grid button { padding: 6px; font-size: 11px; } 
+
+            .action-panel { flex: none; gap: 5px; padding: 8px; }
+
+            .action-panel .btn { padding: 8px; font-size: 11px; } 
+
+            .action-panel select { padding: 6px; font-size: 11px; } 
+
+            
+
+            /* 👈 Log de Batalha Maior e Legível */
+
+            .log-box { 
+
+                min-height: 80px; 
+
+                font-size: 12px; 
+
+                padding: 8px 10px; 
+
+            }
+
+
+
+            /* ================= AJUSTES DA POKÉDEX ================= */
+
+            /* 👈 Forçando a barra de filtros a empilhar em coluna */
+
+            #tab-pokedex > div:nth-child(2) {
+
+                flex-direction: column !important;
+
+                gap: 8px !important;
+
+            }
+
+            #dex-region-select, #dex-search {
+
+                width: 100% !important;
+
+                flex: none !important;
+
+                padding: 8px !important;
+
+                font-size: 12px !important;
+
+            }
+
+            /* Título e Contador empilhados */
+
+            #tab-pokedex > div:nth-child(1) {
+
+                flex-direction: column;
+
+                align-items: flex-start;
+
+                gap: 10px;
+
+            }
+
+
+
+            /* Lista da Pokédex */
+
+            #pokedex-list { gap: 8px; padding-bottom: 10px; }
+
+            .dex-row { padding: 10px; gap: 8px; font-size: 11px; flex-wrap: wrap; }
+
+            .dex-row img { width: 35px; height: 35px; margin-right: 5px; } 
+
+            .dex-variants { gap: 3px; margin-top: 5px; width: 100%; justify-content: space-between;}
+
+            .dex-row .btn { padding: 8px; font-size: 11px; width: 100%; margin-left: 0; margin-top: 5px;}
+
+
+
+/* Modais (Pop-ups) adaptados */
+            .modal-content { 
+                width: 95%; 
+                padding: 15px; 
+                max-height: calc(100dvh - 90px); /* 👈 Nunca vai encostar na barra de baixo */
+                align-self: flex-start; /* 👈 Gruda o card lá no topo da tela */
+                margin-top: 15px; /* 👈 Só dá um respiro do teto */
+                overflow-y: auto; 
+            }
+            
+            /* 👇 Esta é a linha nova que trava o cabeçalho no celular */
+            .modal-header { top: -15px; margin: -15px -15px 15px -15px; padding: 15px 15px 10px 15px; }
+
+            .modal-header h3 { font-size: 18px; }
+            .box-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); } 
+
+            /* 👉 Modais de Mensagem e Batalha no alcance do dedão (Mobile) */
+            #msg-modal, #confirm-modal {
+                align-items: flex-end !important; /* Empurra para o fundo da tela */
+                padding-bottom: 70px !important; /* Evita ficar atrás da barra rápida */
+            }
+            #msg-modal .modal-content, #confirm-modal .modal-content {
+                width: 100% !important;
+                max-height: max-content; /* Deixa o balão se ajustar ao texto */
+                border-radius: 24px 24px 8px 8px !important;
+                margin: 0 10px !important;
+                align-self: flex-end !important;
+                animation: slideUp 0.2s ease-out; /* Efeitinho suave subindo */
+            }
+            @keyframes slideUp { 
+                from { transform: translateY(50px); opacity: 0; } 
+                to { transform: translateY(0); opacity: 1; } 
+            }
+        } /* 👈 ESSA É A CHAVE QUE FECHA O @MEDIA DO CELULAR, NÃO APAGUE ELA! */
     </style>
 
 </head>
@@ -651,10 +803,10 @@ nav::-webkit-scrollbar-thumb { background: #34495e; border-radius: 5px; }
         <button class="btn" style="background: #f39c12; font-size: 11px; border: 1px solid #f1c40f; box-shadow: 0 4px 6px rgba(0,0,0,0.5);" onclick="openTextSaveModal('import')">📝 Colar Código</button>
     </div>
 
-    <div class="modal-content" style="width: 650px; max-width: 95%; text-align: center; background: #1e272e; color: white; border: 2px solid var(--primary); box-shadow: 0 0 50px rgba(41, 128, 185, 0.4); max-height: 90dvh; overflow-y: auto;">
+    <div class="modal-content" style="width: 650px; max-width: 95%; text-align: center; background: #1e272e; color: white; border: 2px solid var(--primary); box-shadow: 0 0 50px rgba(41, 128, 185, 0.4); max-height: 85dvh; overflow-y: auto;">
         
         <!-- Bloco do Professor (Sprite Dinâmico) -->
-        <div style="display: flex; align-items: center; gap: 15px; background: #2c3e50; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #34495e;">
+        <div style="display: flex; align-items: center; gap: 15px; background: #2c3e50; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #34495e; flex-shrink: 0;">
             <img src="https://play.pokemonshowdown.com/sprites/trainers/oak.png" 
                  alt="Professor Oak" 
                  style="width: 80px; height: 80px; object-fit: contain; 
@@ -669,34 +821,32 @@ nav::-webkit-scrollbar-thumb { background: #34495e; border-radius: 5px; }
         </div>
 
         <!-- Seção de Nome e Avatar empilhadas verticalmente -->
-<div style="display: flex; flex-direction: column; gap: 20px; margin-bottom: 20px;">
-    
-    <!-- Nome (Acima) -->
-    <div style="text-align: left;">
-        <label style="font-size:12px; color: #bdc3c7; display: block; margin-bottom: 5px; font-weight: bold;">Qual é o seu nome?</label>
-        <input type="text" id="new-trainer-name" placeholder="Ex: Ash" style="width: 100%; background: #11141a; color: white; border: 1px solid #7f8c8d; padding: 12px; border-radius: 6px; font-size: 14px;">
-    </div>
+        <div style="display: flex; flex-direction: column; gap: 20px; margin-bottom: 20px; flex-shrink: 0;">
+            <!-- Nome (Acima) -->
+            <div style="text-align: left;">
+                <label style="font-size:12px; color: #bdc3c7; display: block; margin-bottom: 5px; font-weight: bold;">Qual é o seu nome?</label>
+                <input type="text" id="new-trainer-name" placeholder="Ex: Ash" style="width: 100%; background: #11141a; color: white; border: 1px solid #7f8c8d; padding: 12px; border-radius: 6px; font-size: 14px;">
+            </div>
 
-    <!-- Avatar (Abaixo do Nome) -->
-    <div style="text-align: left;">
-        <label style="font-size:12px; color: #bdc3c7; display: block; margin-bottom: 8px; font-weight: bold;">Escolha o seu visual:</label>
-        <!-- display: flex com flex-wrap: wrap garante que fiquem na horizontal e pulem de linha -->
-        <div id="avatar-container" style="display: flex; flex-wrap: wrap; gap: 8px; background: #11141a; padding: 12px; border-radius: 8px; border: 1px solid #34495e; justify-content: center;">
-            <!-- Avatares gerados no JS -->
+            <!-- Avatar (Abaixo do Nome) -->
+            <div style="text-align: left;">
+                <label style="font-size:12px; color: #bdc3c7; display: block; margin-bottom: 8px; font-weight: bold;">Escolha o seu visual:</label>
+                <div id="avatar-container" style="display: flex; flex-wrap: wrap; gap: 8px; background: #11141a; padding: 12px; border-radius: 8px; border: 1px solid #34495e; justify-content: center;">
+                    <!-- Avatares gerados no JS -->
+                </div>
+                <input type="hidden" id="starter-selected-avatar" value="red">
+            </div>
         </div>
-        <input type="hidden" id="starter-selected-avatar" value="red">
-    </div>
-</div>
         
         <label style="font-size:12px; color: #bdc3c7; display: block; margin-bottom: 10px; text-align: left; font-weight: bold;">Escolha o seu parceiro inicial:</label>
         
-        <!-- Grid de Iniciais -->
-        <div id="starter-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; max-height: 35vh; overflow-y: auto; margin-bottom: 15px; padding: 15px; background: #11141a; border-radius: 8px; border: 1px solid #2c3e50;">
+        <!-- 👉 CORREÇÃO: Grid de Iniciais travada em ~2.5 linhas com Scroll -->
+        <div id="starter-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; min-height: 230px; max-height: 230px; overflow-y: auto; margin-bottom: 15px; padding: 15px; background: #11141a; border-radius: 8px; border: 1px solid #2c3e50; flex-shrink: 0;">
             <!-- O JavaScript vai injetar as imagens aqui -->
         </div>
         
         <input type="hidden" id="starter-selected-value" value="">
-        <button class="btn" id="btn-confirm-starter" style="width: 100%; padding: 15px; font-size: 16px; font-weight: bold; text-transform: uppercase; transition: 0.3s; background: #95a5a6; color: #333;" disabled onclick="confirmStarter()">Selecione um Parceiro</button>
+        <button class="btn" id="btn-confirm-starter" style="width: 100%; padding: 15px; font-size: 16px; font-weight: bold; text-transform: uppercase; transition: 0.3s; background: #95a5a6; color: #333; flex-shrink: 0;" disabled onclick="confirmStarter()">Selecione um Parceiro</button>
     </div>
 </div>
 <!-- 👆 👆 👆 -->
@@ -1269,32 +1419,35 @@ nav::-webkit-scrollbar-thumb { background: #34495e; border-radius: 5px; }
     </div>
 
 <!-- ABA: FICHA DO TREINADOR -->
-    <div id="tab-card" class="tab-content padding-wrap">
-        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
-            <div style="width: 60px; height: 60px; background: #e2e8f0; border-radius: 50%; overflow: hidden; border: 3px solid var(--primary); display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
-                <img id="card-trainer-sprite" src="" style="width: 120%; height: 120%; object-fit: contain; image-rendering: pixelated; transform: translateY(5px);">
-            </div>
-            <h2 style="border: none; margin: 0; padding: 0;">🪪 Ficha de <span id="card-trainer-name">Treinador</span></h2>
+<div id="tab-card" class="tab-content padding-wrap">
+    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+        <div style="width: 60px; height: 60px; background: #e2e8f0; border-radius: 50%; overflow: hidden; border: 3px solid var(--primary); display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
+            <img id="card-trainer-sprite" src="" style="width: 120%; height: 120%; object-fit: contain; image-rendering: pixelated; transform: translateY(5px);">
         </div>
-        
-        <div style="background:#ecf0f1; padding:15px; border-radius:8px; border-left:4px solid var(--primary); margin-bottom: 20px;">
-            <h3 style="margin-top:0; color:var(--secondary); margin-bottom: 15px;">Resumo da Jornada</h3>
-            <div style="display:flex; flex-wrap:wrap; gap:15px; font-size:14px;">
-                <div style="flex:1; min-width:140px; background:white; padding:10px; border-radius:6px; border:1px solid #bdc3c7;">⚔️ Batalhas: <br><b id="card-stat-battles" style="font-size:18px;">0</b></div>
-                <div style="flex:1; min-width:140px; background:white; padding:10px; border-radius:6px; border:1px solid #27ae60;">🏆 Vitórias: <br><b id="card-stat-wins" style="color:#27ae60; font-size:18px;">0</b></div>
-                <div style="flex:1; min-width:140px; background:white; padding:10px; border-radius:6px; border:1px solid #bdc3c7;">🎯 Capturas: <br><b id="card-stat-captures" style="font-size:18px;">0</b></div>
-                <div style="flex:1; min-width:140px; background:white; padding:10px; border-radius:6px; border:1px solid #bdc3c7;">🥚 Chocados: <br><b id="card-stat-eggs" style="font-size:18px;">0</b></div>
-                <div style="flex:1; min-width:140px; background:white; padding:10px; border-radius:6px; border:1px solid #f39c12;">⭐ EXP (Você): <br><b id="card-stat-texp" style="color:#f39c12; font-size:18px;">0</b></div>
-                <div style="flex:1; min-width:140px; background:white; padding:10px; border-radius:6px; border:1px solid #8e44ad;">🧬 EXP (Time): <br><b id="card-stat-pexp" style="color:#8e44ad; font-size:18px;">0</b></div>
-            </div>
+        <h2 style="border: none; margin: 0; padding: 0;">🪪 Ficha de <span id="card-trainer-name">Treinador</span></h2>
+    </div>
+    
+    <div style="background:#ecf0f1; padding:15px; border-radius:8px; border-left:4px solid var(--primary); margin-bottom: 20px;">
+        <h3 style="margin-top:0; color:var(--secondary); margin-bottom: 15px;">Resumo da Jornada</h3>
+        <div style="display:flex; flex-wrap:wrap; gap:15px; font-size:14px;">
+            <div style="flex:1; min-width:140px; background:white; padding:10px; border-radius:6px; border:1px solid #bdc3c7;">⚔️ Batalhas: <br><b id="card-stat-battles" style="font-size:18px;">0</b></div>
+            <div style="flex:1; min-width:140px; background:white; padding:10px; border-radius:6px; border:1px solid #27ae60;">🏆 Vitórias: <br><b id="card-stat-wins" style="color:#27ae60; font-size:18px;">0</b></div>
+            <div style="flex:1; min-width:140px; background:white; padding:10px; border-radius:6px; border:1px solid #bdc3c7;">🎯 Capturas: <br><b id="card-stat-captures" style="font-size:18px;">0</b></div>
+            <div style="flex:1; min-width:140px; background:white; padding:10px; border-radius:6px; border:1px solid #bdc3c7;">🥚 Chocados: <br><b id="card-stat-eggs" style="font-size:18px;">0</b></div>
+            <div style="flex:1; min-width:140px; background:white; padding:10px; border-radius:6px; border:1px solid #f39c12;">⭐ EXP (Você): <br><b id="card-stat-texp" style="color:#f39c12; font-size:18px;">0</b></div>
+            <div style="flex:1; min-width:140px; background:white; padding:10px; border-radius:6px; border:1px solid #8e44ad;">🧬 EXP (Time): <br><b id="card-stat-pexp" style="color:#8e44ad; font-size:18px;">0</b></div>
         </div>
-        
-        <h3 style="color:var(--secondary); margin-bottom:10px;">Progresso Regional</h3>
-    <!-- O padding-bottom que adicionamos no CSS vai atuar aqui embaixo: -->
-    <div class="box-grid" id="card-regions-grid" style="grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));">
-        <!-- As regiões serão injetadas aqui -->
+    </div>
+    
+    <!-- 👇 LIGAS AGORA DENTRO DE UMA CAIXA CINZA COM MARGEM GIGANTE PRO CELULAR 👇 -->
+    <div style="background:#ecf0f1; padding:15px; border-radius:8px; border-left:4px solid var(--accent); margin-bottom: 100px;">
+        <h3 style="margin-top:0; color:var(--secondary); margin-bottom: 15px;">Progresso Regional</h3>
+        <div class="box-grid" id="card-regions-grid" style="grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));">
+            <!-- As regiões serão injetadas aqui -->
+        </div>
     </div>
 </div>
+<!-- ABA: EQUIPA (O bloco abaixo já é o tab-team) -->
 
     <!-- ABA: EQUIPA -->
 <div id="tab-team" class="tab-content padding-wrap">
@@ -4289,7 +4442,7 @@ const REGION_RANGES = {
         5: { name: "Unova", gyms: [{n:"Cilan",t:"grass",l:16},{n:"Lenora",t:"normal",l:32},{n:"Burgh",t:"bug",l:39},{n:"Elesa",t:"electric",l:51},{n:"Clay",t:"ground",l:54},{n:"Skyla",t:"flying",l:57},{n:"Brycen",t:"ice",l:65},{n:"Marlon",t:"water",l:72}], e4: [{n:"Shauntal",t:"ghost",l:92},{n:"Grimsley",t:"dark",l:93},{n:"Caitlin",t:"psychic",l:92},{n:"Marshal",t:"fighting",l:94}], champ: {n:"Iris",t:"dragon",l:97} },
         6: { name: "Kalos", gyms: [{n:"Viola",t:"bug",l:15},{n:"Grant",t:"rock",l:27},{n:"Korrina",t:"fighting",l:37},{n:"Ramos",t:"grass",l:41},{n:"Clemont",t:"electric",l:48},{n:"Valerie",t:"fairy",l:56},{n:"Olympia",t:"psychic",l:63},{n:"Wulfric",t:"ice",l:69}], e4: [{n:"Malva",t:"fire",l:91},{n:"Siebold",t:"water",l:92},{n:"Wikstrom",t:"steel",l:92},{n:"Drasna",t:"dragon",l:91}], champ: {n:"Diantha",t:"fairy",l:95} },
         7: { name: "Alola", gyms: [{n:"Ilima",t:"normal",l:17},{n:"Lana",t:"water",l:29},{n:"Kiawe",t:"fire",l:38},{n:"Mallow",t:"grass",l:45},{n:"Sophocles",t:"electric",l:52},{n:"Acerola (Trial)",t:"ghost",l:57},{n:"Mina",t:"fairy",l:67},{n:"Trial Dragão",t:"dragon",l:76}], e4: [{n:"Hala",t:"fighting",l:91},{n:"Olivia",t:"rock",l:91},{n:"Acerola",t:"ghost",l:91},{n:"Kahili",t:"flying",l:93}], champ: {n:"Kukui",t:"any",l:96} },
-        8: { name: "Galar", gyms: [{n:"Milo",t:"grass",l:18},{n:"Nessa",t:"water",l:30},{n:"Kabu",t:"fire",l:42},{n:"Bea",t:"fighting",l:50},{n:"Opal",t:"fairy",l:57},{n:"Gordie",t:"rock",l:64},{n:"Piers",t:"dark",l:69},{n:"Raihan",t:"dragon",l:80}], e4: [], champ: {n:"Leon",t:"any",l:99} },
+        8: { name: "Galar", gyms: [{n:"Milo",t:"grass",l:18},{n:"Nessa",t:"water",l:30},{n:"Kabu",t:"fire",l:42},{n:"Bea",t:"fighting",l:50},{n:"Opal",t:"fairy",l:57},{n:"Gordie",t:"rock",l:64},{n:"Piers",t:"dark",l:69},{n:"Raihan",t:"dragon",l:80}], e4: [{n:"Marnie",t:"dark",l:91},{n:"Bede",t:"fairy",l:92},{n:"Hop",t:"normal",l:93},{n:"Mustard",t:"fighting",l:95}], champ: {n:"Leon",t:"any",l:99} },
         9: { name: "Paldea", gyms: [{n:"Katy",t:"bug",l:17},{n:"Brassius",t:"grass",l:28},{n:"Iono",t:"electric",l:38},{n:"Kofu",t:"water",l:44},{n:"Larry",t:"normal",l:52},{n:"Ryme",t:"ghost",l:57},{n:"Tulip",t:"psychic",l:65},{n:"Grusha",t:"ice",l:72}], e4: [{n:"Rika",t:"ground",l:92},{n:"Poppy",t:"steel",l:91},{n:"Larry (Elite)",t:"flying",l:91},{n:"Hassel",t:"dragon",l:93}], champ: {n:"Nemona",t:"any",l:98} }
     };
 
@@ -4478,7 +4631,7 @@ function saveTrainer() { localStorage.setItem('pkmnTrainer', JSON.stringify(trai
         trainerState.exp += amountExp; if(amountMoney > 0) trainerState.money += amountMoney;
         
         // 👉 LIMITE DO TREINADOR: 300 se o Pós-jogo estiver ativo
-        const maxTrainerLevel = trainerState.postgame ? 300 : 200;
+        const maxTrainerLevel = trainerState.postgame ? 250 : 200;
         let reqExp = trainerState.level * 100; let leveledUp = false;
         
         while(trainerState.exp >= reqExp && trainerState.level < maxTrainerLevel) { 
@@ -4559,7 +4712,7 @@ const titleUI = document.getElementById('trainer-title-ui');
         if (titleUI) titleUI.innerText = (trainerState.achievements && trainerState.achievements.dex_national) ? "👑 Perfil de Mestre" : "Perfil de Treinador";
 
         // 👇 ADICIONE ESTAS TRÊS LINHAS:
-        const maxTLevel = trainerState.postgame ? 300 : 200;
+        const maxTLevel = trainerState.postgame ? 250 : 200;
         const txtLvl = document.getElementById('trainer-lvl-text');
         if (txtLvl) txtLvl.parentElement.innerHTML = `Nível: <strong id="trainer-lvl-text">${trainerState.level}</strong> / ${maxTLevel} <span style="font-size:10px; color:#555;">(Exp: <span id="trainer-exp-text">${trainerState.exp}</span>/<span id="trainer-next-exp">${trainerState.level*100}</span>)</span>`;
 
@@ -8796,16 +8949,30 @@ const pData = await fetchAPI(`https://pokeapi.co/api/v2/pokemon/${properName}`);
 // 👉 VERIFICADOR DO PÓS-JOGO
     function checkPostGameUnlock() {
         if (trainerState.postgame) return;
+        
         let beatenCount = 0;
         for (let i = 1; i <= 9; i++) {
             if (trainerState.league[i] && (trainerState.league[i].c || trainerState.league[i].prestige > 0)) {
                 beatenCount++;
             }
         }
-        if (beatenCount >= 9) { // Bateu todas as Ligas
+        
+        if (beatenCount >= 9) { // Bateu os 9 Campeões Originais
             trainerState.postgame = true;
+            
+            // 👉 A MÁGICA: Reseta TODAS as Ligas instantaneamente para o Nível 2 (Prestígio 1)
+            for (let i = 1; i <= 9; i++) {
+                trainerState.league[i].g = 0;
+                trainerState.league[i].s = 0;
+                trainerState.league[i].e = 0;
+                trainerState.league[i].c = false;
+                trainerState.league[i].prestige = 1; // Níveis x2
+            }
+            
+            saveTrainer();
+            
             setTimeout(() => {
-                showMessage(`🌌 <b>O PÓS-JOGO COMEÇOU!</b> 🌌<br><br>Você derrotou os Campeões de todas as Ligas!<br>• O Limite de Nível dos Pokémon agora é <b>INFINITO</b>.<br>• O Limite de Nível do Treinador subiu para <b>300</b>.<br>• O nível máximo do Rival agora é <b>INFINITO</b>.<br>• Ao derrotar uma Liga novamente, ela irá reiniciar com os níveis <b>DOBRADOS</b>, e você ganhará um Pokémon Aleatório 6 IVs Perfeito no final!`);
+                showMessage(`🌌 <b>O PÓS-JOGO COMEÇOU!</b> 🌌<br><br>Você derrotou os Campeões de todas as Ligas pela primeira vez!<br>• <b>TODAS AS LIGAS FORAM REINICIADAS!</b><br>• Elas agora estão no <b>Nível 2 (Prestígio 1)</b> com os níveis dos inimigos dobrados!<br>• O Limite de Nível dos Pokémon agora é <b>INFINITO</b>.<br>• O Limite de Nível do Treinador subiu para <b>250</b>.<br>• O nível máximo do Rival agora é <b>INFINITO</b>.<br><br>A partir de agora, o Prestígio de cada Liga evolui <b>individualmente</b>, e você ganhará um Pokémon Aleatório 6 IVs Perfeito a cada vez que derrotar um Campeão Mestre!`);
             }, 3000);
         }
     }
@@ -8864,34 +9031,25 @@ const pData = await fetchAPI(`https://pokeapi.co/api/v2/pokemon/${properName}`);
             }
         } 
         else if (cfg.type === 'champ') {
-            // 👉 LÓGICA DO CAMPEÃO E PÓS-JOGO AQUI
-            if (!state.c) {
+            // 👉 LÓGICA DO CAMPEÃO E PÓS-JOGO
+            if (!state.c && !trainerState.postgame) {
+                // Primeira vez batendo esta Liga (antes do Pós Jogo Global iniciar)
                 state.c = true;
-                checkPostGameUnlock(); // Verifica se ativou o post-game agora
-                
-                if (trainerState.postgame) {
-                    // Loop Infinito do Pós-Jogo!
-                    state.prestige = (state.prestige || 0) + 1;
-                    let champLevel = data.champ.l * Math.pow(2, state.prestige - 1); 
-                    
-                    state.g = 0; state.s = 0; state.e = 0; state.c = false; // Zera a Liga
-                    givePrestigeReward(cfg.rId, champLevel); // Dá o Pokémon
-                    
-                    showMessage(`👑 <b>VOCÊ É O NOVO CAMPEÃO DE ${data.name.toUpperCase()}!</b> 👑<br><br>Como o Pós-Jogo está ativo, a Liga foi reiniciada com <b>NÍVEIS DOBRADOS</b>!<br>Você recebeu um Pokémon 6 IVs nv.${champLevel} como recompensa!`);
-                } else {
-                    showMessage(`👑 <b>VOCÊ É O NOVO CAMPEÃO DE ${data.name.toUpperCase()}!</b> 👑<br><br>Você derrotou ${data.champ.n} e cravou seu nome no Hall da Fama!`);
-                }
+                showMessage(`👑 <b>VOCÊ É O NOVO CAMPEÃO DE ${data.name.toUpperCase()}!</b> 👑<br><br>Você derrotou ${data.champ.n} e cravou seu nome no Hall da Fama!`);
+                checkPostGameUnlock(); // Se for o 9º Campeão, o Pós-Jogo ativa aqui!
             } else {
-                // Já era campeão (já derrotou pelo menos 1 vez)
+                // Modo Prestígio e Pós-Jogo ativado!
                 if (trainerState.postgame) {
-                    state.prestige = (state.prestige || 0) + 1;
-                    let champLevel = data.champ.l * Math.pow(2, state.prestige - 1); 
+                    state.prestige = (state.prestige || 1) + 1; // Evolui apenas esta região individualmente
+                    let champLevel = data.champ.l * Math.pow(2, state.prestige - 2); // Usa o nível base para o prêmio 6 IVs
                     
-                    state.g = 0; state.s = 0; state.e = 0; state.c = false; // Zera a Liga
+                    state.g = 0; state.s = 0; state.e = 0; state.c = false; // Zera a Liga Individual
                     givePrestigeReward(cfg.rId, champLevel); // Dá o Pokémon
                     
-                    showMessage(`🌌 <b>VOCÊ VENCEU A LIGA PRESTÍGIO ${state.prestige}!</b> 🌌<br><br>A Liga reiniciou com os Níveis Dobrados novamente!<br>Um Pokémon 6 IVs perfeito Nível ${champLevel} foi enviado ao seu PC!`);
+                    const novoMult = Math.pow(2, state.prestige);
+                    showMessage(`🌌 <b>VOCÊ VENCEU A LIGA PRESTÍGIO ${state.prestige - 1}!</b> 🌌<br><br>A Liga de ${data.name} reiniciou no <b>Prestígio ${state.prestige} (Níveis x${novoMult})</b>!<br>Um Pokémon 6 IVs perfeito Nível ${champLevel} foi enviado ao seu PC!`);
                 } else {
+                    // Fallback se jogar 2x a mesma liga antes do Pós-jogo Global ativar
                     showMessage(`Você venceu a revanche contra o Campeão ${data.champ.n}!`);
                 }
             }
