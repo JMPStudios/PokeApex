@@ -4030,13 +4030,36 @@ async function createPokemonObject(apiData, level, movePoolType = 'custom', forc
     }
     
     // Se não sobrar nada, ganha um golpe básico de segurança
-    if (validMoves.length === 0) validMoves = [{ id: "basic-0", name: "Investida", power: 40, pp: 35, maxPp: 35, type: "normal", category: "physical", effect: "none" }];
-    
-    // Embaralha o Top 8 e escolhe 4 (Ditto recebe apenas 1)
-    const shuffled = apiData.name === 'ditto' ? [validMoves[0]] : validMoves.sort(() => 0.5 - Math.random()).slice(0, 4);
+    if (validMoves.length === 0) validMoves = [{ id: "basic-0", name: "Investida", power: 40, pp: 35, maxPp: 35, type: "normal", category: "physical", effect: "none" }];
+    
+    let shuffled = [];
+    if (apiData.name === 'ditto') {
+        shuffled = [validMoves[0]];
+    } else {
+        // 👉 A MÁGICA: Separa os ataques que causam dano real!
+        const damageMoves = validMoves.filter(m => m.power > 0 && m.category !== 'status');
+        
+        // Se, por um azar gigante, a lista de golpes válidos só tiver status, forçamos o "Investida"
+        if (damageMoves.length === 0) {
+            const fallbackDmgMove = { id: "basic-0", name: "Investida", power: 40, pp: 35, maxPp: 35, type: "normal", category: "physical", effect: "none" };
+            damageMoves.push(fallbackDmgMove);
+            validMoves.push(fallbackDmgMove);
+        }
 
-    
-    let moves = shuffled.map(m => ({ 
+        // 1º Passo: Escolhe OBJETIVAMENTE 1 ataque de dano
+        const firstDmgMove = damageMoves[Math.floor(Math.random() * damageMoves.length)];
+        
+        // 2º Passo: Retira o ataque escolhido da lista para não vir duplicado
+        const remainingMoves = validMoves.filter(m => m.id !== firstDmgMove.id).sort(() => 0.5 - Math.random());
+        
+        // 3º Passo: Junta o ataque de dano com até 3 ataques aleatórios (status ou dano)
+        shuffled = [firstDmgMove, ...remainingMoves.slice(0, 3)];
+        
+        // 4º Passo: Embaralha de novo, para que o ataque de dano não fique SEMPRE no slot 1
+        shuffled = shuffled.sort(() => 0.5 - Math.random());
+    }
+
+    let moves = shuffled.map(m => ({
         id: m.id, name: m.name, power: m.power || 0, pp: m.maxPp || 15, maxPp: m.maxPp || 15, 
         type: m.type || 'normal', category: m.category || 'physical', effect: m.effect || 'none' 
     }));
@@ -5520,9 +5543,15 @@ playerTeam.forEach((pkmn, idx) => {
 
         if (tabId === 'tab-gyms') renderGyms(); // 👈 AGORA ELE SABE QUE PRECISA DESENHAR A LIGA!
 
-	if (tabId === 'tab-ranking') switchRankTab(currentRankTab); // 👈 Força a atualizar a tabela e o cálculo
-
-    }
+	if (tabId === 'tab-ranking') {
+            // Arruma o visual da aba selecionada (Geral, Combatentes, etc)
+            document.querySelectorAll('[id^="rank-btn-"]').forEach(b => b.classList.remove('active'));
+            document.getElementById(`rank-btn-${currentRankTab}`).classList.add('active');
+            document.getElementById('rank-score-label').innerText = currentRankTab === 'topmon' ? "O Pokémon" : "PokéScore";
+            
+            // 👈 Sincroniza de forma invisível! (Envia seus dados e já puxa a tabela atualizada)
+            syncRankings(true); 
+        }
 
 function renderTrainerCard() {
         const container = document.getElementById('card-regions-grid');
@@ -9511,14 +9540,17 @@ window.activateGimmick = async function() {
     }
 
     // 3. Enviar e Receber Dados da Nuvem
-    async function syncRankings() {
-        showLoader("Conectando à Liga Global...");
+    async function syncRankings(isSilent = false) {
+        if (!isSilent) showLoader("Conectando à Liga Global...");
         calculateLeaderboardStats(); // Atualiza a conta
         
         const isAuth = await authenticateLootLocker();
         if (!isAuth) {
-            hideLoader();
-            return showMessage("Erro ao conectar com o servidor! A sua API Key foi configurada no código?");
+            if (!isSilent) {
+                hideLoader();
+                return showMessage("Erro ao conectar com o servidor! A sua API Key foi configurada no código?");
+            }
+            return;
         }
 
         try {
@@ -9547,12 +9579,17 @@ window.activateGimmick = async function() {
             
             // Atualiza a tabela na tela imediatamente após enviar
             await fetchLeaderboard(currentRankTab);
-            hideLoader();
-            showMessage("✅ Pontuação Sincronizada com Sucesso!");
+            
+            if (!isSilent) {
+                hideLoader();
+                showMessage("✅ Pontuação Sincronizada com Sucesso!");
+            }
             
         } catch (e) {
-            hideLoader();
-            showMessage("Erro de comunicação ao enviar pontos.");
+            if (!isSilent) {
+                hideLoader();
+                showMessage("Erro de comunicação ao enviar pontos.");
+            }
         }
     }
 
