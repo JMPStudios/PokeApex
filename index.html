@@ -2655,13 +2655,23 @@ let currentEnemyTeam = [];
     }
 
     function resetTowers() {
-        showConfirm("Isso vai curar totalmente sua equipe, mas fará você perder o progresso das Torres e voltar ao Andar 1. Confirmar?", () => {
-            trainerState.tower = { trainerFloor: 1, wildFloor: 1 };
+        showConfirm("Isso vai curar totalmente sua equipe, mas fará você voltar ao Andar 1. (O seu Recorde Máximo no Ranking será mantido!). Confirmar?", () => {
+            // 👉 CORREÇÃO: Salva os recordes antes de apagar a torre!
+            const maxT = Math.max(trainerState.tower.maxTrainerFloor || 1, trainerState.tower.trainerFloor || 1);
+            const maxW = Math.max(trainerState.tower.maxWildFloor || 1, trainerState.tower.wildFloor || 1);
+            
+            trainerState.tower = { 
+                trainerFloor: 1, 
+                wildFloor: 1, 
+                maxTrainerFloor: maxT, 
+                maxWildFloor: maxW 
+            };
+            
             playerTeam.forEach(p => { p.hp = p.maxHp; p.status = null; p.moves.forEach(m => m.pp = m.maxPp); });
             saveTrainer();
             updateTowerUI();
             renderBoxAndTeam();
-            showMessage("Equipe curada e Torres resetadas!");
+            showMessage("Equipe curada e Torres resetadas para o Andar 1!");
         });
     }
 
@@ -3108,6 +3118,7 @@ let usedNames = new Set();
             battleState.isWild = false;
             battleState.isPvP = false;
             battleState.isLeague = false;
+            battleState.isTower = false; // 👈 ADICIONE ESTA LINHA AQUI!
             
             initBattleUI();
         } catch(e) { 
@@ -7163,18 +7174,13 @@ function startRivalBattle() {
         
 
         // 👇 CORREÇÃO: Limpando todos os outros estados de batalha!
-
         battleState.isWild = false; 
-
         battleState.isPvP = false; 
-
         battleState.isLeague = false; 
-
         battleState.isTourney = false;
-
+        battleState.isTower = false; // 👈 ADICIONE ESTA LINHA AQUI!
         
-
-        initBattleUI(); 
+        initBattleUI();
 
     }
 
@@ -7256,9 +7262,9 @@ playerTeam.forEach(p => { revertTransformation(p); p.maxHp = p.stats.hp; p.hp = 
         // Garante a memória de troca
         battleState.participants = [0]; 
         
-        // 👉 CORREÇÃO DO VAZAMENTO: Se uma variável não foi setada antes de iniciar, ela sempre será falsa!
+        // 👉 CORREÇÃO DO VAZAMENTO: Garante que a Torre é desligada por padrão para qualquer outra batalha!
         if (battleState.autoAttackSlot === undefined) battleState.autoAttackSlot = -1;
-        if (battleState.isTower === undefined) battleState.isTower = false;
+        battleState.isTower = false; // 👈 MUDANÇA AQUI: Removemos o "if", agora ele SEMPRE desliga a torre!
 
         battleState.globalTick = 0; 
         battleState.active = true; 
@@ -8369,181 +8375,184 @@ function checkStateForFaints() {
 
 
 function checkFaint(pkmn, isPlayerTeam) {
-        if (!pkmn) return false;
-        
-        // 👈 NOVA PROTEÇÃO: Se a vida for maior que 0, reseta o estado de morte dele.
-        if (pkmn.hp > 0) {
-            pkmn.faintProcessed = false;
-            return false;
-        }
-
-        // Se a vida for <= 0 e ele já foi processado, não faz nada
-        if (pkmn.faintProcessed) return false; 
-        
-        pkmn.faintProcessed = true;
-        battleState.paused = true; 
-        log(`<b>${(pkmn.name||'').replace(/-/g,' ')}</b> desmaiou!`);
-        
-        if (isPlayerTeam) {
-            const nextIdx = playerTeam.findIndex(m => m.hp > 0);
-            if(nextIdx !== -1) { 
-                setTimeout(() => { 
-                    battleState.paused = false; 
-                    promptSwitch(); 
-                }, 1000); 
-            } else { 
-                setTimeout(() => { 
-                    // 👉 NOVA REGRA DA TORRE: Perdeu na Torre
-                    if (battleState.isTower) {
-                        const tType = battleState.towerType;
-                        const floor = tType === 'trainer' ? trainerState.tower.trainerFloor : trainerState.tower.wildFloor;
-                        
-                        // Zera o progresso do andar específico
-                        if (tType === 'trainer') trainerState.tower.trainerFloor = 1;
-                        else trainerState.tower.wildFloor = 1;
-                        
-                        saveTrainer();
-                        updateTowerUI();
-                        showMessage(`<b>Torre Falhou!</b><br><br>Sua equipe foi totalmente derrotada no Andar ${floor}. Seu progresso foi zerado. Vá na aba da Torre, clique no botão vermelho para curar a equipe e tente novamente!`);
-                        endBattle();
-                        return;
-                    }
-                    //... resto do código de morte ...
-                
-                    log("<b>Você foi derrotado! Ninguém mais pode lutar!</b>"); 
-                    showMessage("<b>Derrota!</b><br><br>Todos os seus Pokémon desmaiaram. Volte para o PC para curá-los (no futuro) e treine mais!");
-                    
-                    if (battleState.isTourney) processTourneyVictory(false); 
-
-                    endBattle(); 
-                }, 1000); 
-            }
-        } else {
-            // 👉 DEFENSOR DE COMBATE DO RANKING (Soma o nível do inimigo derrotado)
-            trainerState.lifetime.totalKOsLevel += pkmn.level;
-
-            // 👉 APLICA BÔNUS DE EXP DINÂMICA + FACÇÃO 3
-            const baseExpReward = calculateExpYield(pkmn, battleState.isWild); 
-            const expReward = Math.floor(baseExpReward * (1 + (getFactionBuff(3) * 0.05)));
-
-            // 👉 REGISTRA MISSÃO: Inimigo derrotado (Facção 2)
-            updateMissionProgress('defeat_total', 1);
-
-            // 👇 Gatilho de Derrota por Tipo
-            if(pkmn.types) pkmn.types.forEach(t => updateMissionProgress(`defeat_type_${t}`, 1));
-
-            // 👉 NOVO: Distribuição de Exp. Share
-            distributeExpToTeam(expReward, "A equipe ganhou");
-            
-            const nextIdx = currentEnemyTeam.findIndex(m => m.hp > 0);
-            if(nextIdx !== -1) { 
-                setTimeout(() => { 
-                    battleState.eIdx = nextIdx; 
-                    battleState.eCd = 0; 
-                    const eNew = currentEnemyTeam[nextIdx]; 
-                    eNew.stages = { atk: 0, def: 0, spa: 0, spd: 0, spe: 0 }; 
-                    log(`Oponente enviou <b>${(eNew.name||'').replace(/-/g,' ')}</b>!`); 
-                    updateBattleUI(); 
-                    battleState.paused = false; 
-                    
-                    clearTimeout(battleState.loopTimer);
-                    battleLoop();
-                }, 1500); 
-            } else { 
-                setTimeout(() => { 
-                    // 👇 CONTAGEM DE VITÓRIAS (Apenas se NÃO for selvagem)
-                    if (!battleState.isWild) {
-                        trainerState.lifetime.totalWins = (trainerState.lifetime.totalWins || 0) + 1;
-                    }
-                    
-                    log("<b>Vitória!</b>");
-                    let tExp = 0; let tMoney = 0;
-
-                    if (battleState.isTourney) processTourneyVictory(true);
-                    if (battleState.isLeague) processLeagueVictory();
-                    
-                    // 👉 NOVA REGRA DA TORRE: Venceu o andar da torre!
-                    if (battleState.isTower) {
-                        const tType = battleState.towerType;
-                        const floor = tType === 'trainer' ? trainerState.tower.trainerFloor : trainerState.tower.wildFloor;
-                        
-                        let towerRewardMsg = "";
-                        
-                        if (floor % 10 === 0) {
-                            if (tType === 'wild') {
-                                if (floor <= 50) {
-                                    if (!trainerState.inventory['Great Ball']) trainerState.inventory['Great Ball'] = {count:0, bonus:1.5};
-                                    trainerState.inventory['Great Ball'].count += 1;
-                                    towerRewardMsg = "<br>🎁 <b>Bônus (Selvagem):</b> +1 Great Ball!";
-                                } else if (floor <= 100) {
-                                    if (!trainerState.inventory['Ultra Ball']) trainerState.inventory['Ultra Ball'] = {count:0, bonus:2.0};
-                                    trainerState.inventory['Ultra Ball'].count += 1;
-                                    towerRewardMsg = "<br>🎁 <b>Bônus (Selvagem):</b> +1 Ultra Ball!";
-                                } else if (floor === 200) {
-                                    towerRewardMsg = "<br>📡 <b>Bônus Especial:</b> 1 Carga Radar Nvl 1!";
-                                    trainerState.finder = { active: true, level: 1, targetName: "Aleatório", targetId: 1, searchesLeft: 100 };
-                                } else if (floor === 300) {
-                                    towerRewardMsg = "<br>📡 <b>Bônus Especial:</b> 1 Carga Radar Nvl 2!";
-                                    trainerState.finder = { active: true, level: 2, targetName: "Aleatório", targetId: 1, searchesLeft: 100 };
-                                } else if (floor === 400) {
-                                    towerRewardMsg = "<br>📡 <b>Bônus Especial:</b> 1 Carga Radar Nvl 3!";
-                                    trainerState.finder = { active: true, level: 3, targetName: "Aleatório", targetId: 1, searchesLeft: 100 };
-                                } else if (floor === 500) {
-                                    towerRewardMsg = "<br>📡 <b>Bônus Especial:</b> 1 Carga Radar Nvl 4!";
-                                    trainerState.finder = { active: true, level: 4, targetName: "Aleatório", targetId: 1, searchesLeft: 100 };
-                                } else if (floor === 600) {
-                                    towerRewardMsg = "<br>📡 <b>Bônus Especial:</b> 1 Carga Radar Nvl 5!";
-                                    trainerState.finder = { active: true, level: 5, targetName: "Aleatório", targetId: 1, searchesLeft: 100 };
-                                } else if (floor >= 700) {
-                                    if (!trainerState.inventory['Master Ball']) trainerState.inventory['Master Ball'] = {count:0, bonus:255};
-                                    trainerState.inventory['Master Ball'].count += 1;
-                                    towerRewardMsg = "<br>🎁 <b>Bônus Divino:</b> +1 Master Ball!";
-                                }
-                            } else {
-                                let floorMoney = floor * 5000;
-                                trainerState.money += floorMoney;
-                                towerRewardMsg = `<br>💰 <b>Bônus de Andar:</b> +${floorMoney.toLocaleString('pt-BR')} P$!`;
-                            }
-                        }
-
-                        if (tType === 'trainer') trainerState.tower.trainerFloor++;
-                        else trainerState.tower.wildFloor++;
-                        
-                        setTimeout(() => {
-                            updateTowerUI();
-                            
-                            // 👉 O LOOP INFINITO: Não fecha a tela, apenas mostra um balão invisível rápido e manda o próximo inimigo!
-                            const toast = document.createElement('div');
-                            toast.style.cssText = 'position:absolute; top:20%; left:50%; transform:translate(-50%, -50%); background:rgba(0,0,0,0.8); color:white; padding:10px 20px; border-radius:20px; z-index:9999; font-weight:bold;';
-                            toast.innerHTML = `Andar ${floor} Concluído!${towerRewardMsg}`;
-                            document.getElementById('tab-battle').appendChild(toast);
-                            setTimeout(() => toast.remove(), 2500);
-
-                            // Chama o próximo andar direto!
-                            startTower(tType);
-                        }, 500);
-                        return; // O código da Torre acaba AQUI e não passa pro "endBattle()"
-                    }
-
-                    if (!battleState.isWild) { 
-                        const rLvlAvg = Math.floor(currentEnemyTeam.reduce((acc, curr) => acc + curr.level, 0) / currentEnemyTeam.length); 
-                        tMoney = rLvlAvg * currentEnemyTeam.length * 20; 
-                        tExp = rLvlAvg * currentEnemyTeam.length * 10; 
-                    } else { 
-                        tExp = 20; 
-                    }
-                    
-                    const oldLvl = trainerState.level;
-                    gainExp(tExp, tMoney); 
-                    const lvlMsg = trainerState.level > oldLvl ? `<br><br><span style="color:#27ae60">Parabéns! Você subiu para o Nível ${trainerState.level}!</span>` : "";
-                    
-                    showMessage(`<b>Batalha Vencida!</b><br><br>Recompensas do Treinador:<br>⭐ ${tExp} EXP<br>💰 ${tMoney} P$ ${lvlMsg}`);
-                    endBattle(); 
-                }, 1000); 
-            }
-        } 
-        return true;
+    if (!pkmn) return false;
+    
+    // 👈 NOVA PROTEÇÃO: Se a vida for maior que 0, reseta o estado de morte dele.
+    if (pkmn.hp > 0) {
+        pkmn.faintProcessed = false;
+        return false;
     }
+
+    // Se a vida for <= 0 e ele já foi processado, não faz nada
+    if (pkmn.faintProcessed) return false; 
+    
+    pkmn.faintProcessed = true;
+    battleState.paused = true; 
+    log(`<b>${(pkmn.name||'').replace(/-/g,' ')}</b> desmaiou!`);
+    
+    if (isPlayerTeam) {
+        const nextIdx = playerTeam.findIndex(m => m.hp > 0);
+        if(nextIdx !== -1) { 
+            setTimeout(() => { 
+                battleState.paused = false; 
+                promptSwitch(); 
+            }, 1000); 
+        } else { 
+            setTimeout(() => { 
+                // 👉 NOVA REGRA DA TORRE: Perdeu na Torre
+                if (battleState.isTower) {
+                    const tType = battleState.towerType;
+                    const floor = tType === 'trainer' ? trainerState.tower.trainerFloor : trainerState.tower.wildFloor;
+                    
+                    // 👉 CORREÇÃO: Salva o recorde MÁXIMO na nuvem antes de te jogar para o Andar 1!
+                    trainerState.tower.maxTrainerFloor = Math.max(trainerState.tower.maxTrainerFloor || 1, trainerState.tower.trainerFloor);
+                    trainerState.tower.maxWildFloor = Math.max(trainerState.tower.maxWildFloor || 1, trainerState.tower.wildFloor);
+
+                    // Zera o progresso do andar específico
+                    if (tType === 'trainer') trainerState.tower.trainerFloor = 1;
+                    else trainerState.tower.wildFloor = 1;
+                    
+                    saveTrainer();
+                    updateTowerUI();
+                    showMessage(`<b>Torre Falhou!</b><br><br>Sua equipe foi totalmente derrotada no Andar ${floor}. Seu progresso foi zerado. Vá na aba da Torre, clique no botão vermelho para curar a equipe e tente novamente!`);
+                    endBattle();
+                    return;
+                }
+            
+                log("<b>Você foi derrotado! Ninguém mais pode lutar!</b>"); 
+                showMessage("<b>Derrota!</b><br><br>Todos os seus Pokémon desmaiaram. Volte para o PC para curá-los (no futuro) e treine mais!");
+                
+                if (battleState.isTourney) processTourneyVictory(false); 
+
+                endBattle(); 
+            }, 1000); 
+        }
+    } else {
+        // 👉 DEFENSOR DE COMBATE DO RANKING (Soma o nível do inimigo derrotado)
+        trainerState.lifetime.totalKOsLevel += pkmn.level;
+
+        // 👉 APLICA BÔNUS DE EXP DINÂMICA + FACÇÃO 3
+        const baseExpReward = calculateExpYield(pkmn, battleState.isWild); 
+        const expReward = Math.floor(baseExpReward * (1 + (getFactionBuff(3) * 0.05)));
+
+        // 👉 REGISTRA MISSÃO: Inimigo derrotado (Facção 2)
+        updateMissionProgress('defeat_total', 1);
+
+        // 👇 Gatilho de Derrota por Tipo
+        if(pkmn.types) pkmn.types.forEach(t => updateMissionProgress(`defeat_type_${t}`, 1));
+
+        // 👉 NOVO: Distribuição de Exp. Share
+        distributeExpToTeam(expReward, "A equipe ganhou");
+        
+        const nextIdx = currentEnemyTeam.findIndex(m => m.hp > 0);
+        if(nextIdx !== -1) { 
+            setTimeout(() => { 
+                battleState.eIdx = nextIdx; 
+                battleState.eCd = 0; 
+                const eNew = currentEnemyTeam[nextIdx]; 
+                eNew.stages = { atk: 0, def: 0, spa: 0, spd: 0, spe: 0 }; 
+                log(`Oponente enviou <b>${(eNew.name||'').replace(/-/g,' ')}</b>!`); 
+                updateBattleUI(); 
+                battleState.paused = false; 
+                
+                clearTimeout(battleState.loopTimer);
+                battleLoop();
+            }, 1500); 
+        } else { 
+            setTimeout(() => { 
+                // 👇 CONTAGEM DE VITÓRIAS (Apenas se NÃO for selvagem)
+                if (!battleState.isWild) {
+                    trainerState.lifetime.totalWins = (trainerState.lifetime.totalWins || 0) + 1;
+                }
+                
+                log("<b>Vitória!</b>");
+                let tExp = 0; let tMoney = 0;
+
+                if (battleState.isTourney) processTourneyVictory(true);
+                if (battleState.isLeague) processLeagueVictory();
+                
+                // 👉 NOVA REGRA DA TORRE: Venceu o andar da torre!
+                if (battleState.isTower) {
+                    const tType = battleState.towerType;
+                    const floor = tType === 'trainer' ? trainerState.tower.trainerFloor : trainerState.tower.wildFloor;
+                    
+                    let towerRewardMsg = "";
+                    
+                    if (floor % 10 === 0) {
+                        if (tType === 'wild') {
+                            if (floor <= 50) {
+                                if (!trainerState.inventory['Great Ball']) trainerState.inventory['Great Ball'] = {count:0, bonus:1.5};
+                                trainerState.inventory['Great Ball'].count += 1;
+                                towerRewardMsg = "<br>🎁 <b>Bônus (Selvagem):</b> +1 Great Ball!";
+                            } else if (floor <= 100) {
+                                if (!trainerState.inventory['Ultra Ball']) trainerState.inventory['Ultra Ball'] = {count:0, bonus:2.0};
+                                trainerState.inventory['Ultra Ball'].count += 1;
+                                towerRewardMsg = "<br>🎁 <b>Bônus (Selvagem):</b> +1 Ultra Ball!";
+                            } else if (floor === 200) {
+                                towerRewardMsg = "<br>📡 <b>Bônus Especial:</b> 1 Carga Radar Nvl 1!";
+                                trainerState.finder = { active: true, level: 1, targetName: "Aleatório", targetId: 1, searchesLeft: 100 };
+                            } else if (floor === 300) {
+                                towerRewardMsg = "<br>📡 <b>Bônus Especial:</b> 1 Carga Radar Nvl 2!";
+                                trainerState.finder = { active: true, level: 2, targetName: "Aleatório", targetId: 1, searchesLeft: 100 };
+                            } else if (floor === 400) {
+                                towerRewardMsg = "<br>📡 <b>Bônus Especial:</b> 1 Carga Radar Nvl 3!";
+                                trainerState.finder = { active: true, level: 3, targetName: "Aleatório", targetId: 1, searchesLeft: 100 };
+                            } else if (floor === 500) {
+                                towerRewardMsg = "<br>📡 <b>Bônus Especial:</b> 1 Carga Radar Nvl 4!";
+                                trainerState.finder = { active: true, level: 4, targetName: "Aleatório", targetId: 1, searchesLeft: 100 };
+                            } else if (floor === 600) {
+                                towerRewardMsg = "<br>📡 <b>Bônus Especial:</b> 1 Carga Radar Nvl 5!";
+                                trainerState.finder = { active: true, level: 5, targetName: "Aleatório", targetId: 1, searchesLeft: 100 };
+                            } else if (floor >= 700) {
+                                if (!trainerState.inventory['Master Ball']) trainerState.inventory['Master Ball'] = {count:0, bonus:255};
+                                trainerState.inventory['Master Ball'].count += 1;
+                                towerRewardMsg = "<br>🎁 <b>Bônus Divino:</b> +1 Master Ball!";
+                            }
+                        } else {
+                            let floorMoney = floor * 5000;
+                            trainerState.money += floorMoney;
+                            towerRewardMsg = `<br>💰 <b>Bônus de Andar:</b> +${floorMoney.toLocaleString('pt-BR')} P$!`;
+                        }
+                    }
+
+                    if (tType === 'trainer') trainerState.tower.trainerFloor++;
+                    else trainerState.tower.wildFloor++;
+                    
+                    setTimeout(() => {
+                        updateTowerUI();
+                        
+                        // 👉 O LOOP INFINITO: Não fecha a tela, apenas mostra um balão invisível rápido e manda o próximo inimigo!
+                        const toast = document.createElement('div');
+                        toast.style.cssText = 'position:absolute; top:20%; left:50%; transform:translate(-50%, -50%); background:rgba(0,0,0,0.8); color:white; padding:10px 20px; border-radius:20px; z-index:9999; font-weight:bold;';
+                        toast.innerHTML = `Andar ${floor} Concluído!${towerRewardMsg}`;
+                        document.getElementById('tab-battle').appendChild(toast);
+                        setTimeout(() => toast.remove(), 2500);
+
+                        // Chama o próximo andar direto!
+                        startTower(tType);
+                    }, 500);
+                    return; // O código da Torre acaba AQUI e não passa pro "endBattle()"
+                }
+
+                if (!battleState.isWild) { 
+                    const rLvlAvg = Math.floor(currentEnemyTeam.reduce((acc, curr) => acc + curr.level, 0) / currentEnemyTeam.length); 
+                    tMoney = rLvlAvg * currentEnemyTeam.length * 20; 
+                    tExp = rLvlAvg * currentEnemyTeam.length * 10; 
+                } else { 
+                    tExp = 20; 
+                }
+                
+                const oldLvl = trainerState.level;
+                gainExp(tExp, tMoney); 
+                const lvlMsg = trainerState.level > oldLvl ? `<br><br><span style="color:#27ae60">Parabéns! Você subiu para o Nível ${trainerState.level}!</span>` : "";
+                
+                showMessage(`<b>Batalha Vencida!</b><br><br>Recompensas do Treinador:<br>⭐ ${tExp} EXP<br>💰 ${tMoney} P$ ${lvlMsg}`);
+                endBattle(); 
+            }, 1000); 
+        }
+    } 
+    return true;
+}
 
 async function performSwitchAndEnemyTurn(choice, isFainted, isBatonPass = false) {
         // 👉 PROTEÇÃO CONTRA O ERRO DE UNDEFINED! (Se a lista não existir, ele cria)
@@ -9395,6 +9404,7 @@ async function startLeagueBattle(regionId, battleType, index) {
             battleState.isWild = false;
             battleState.isPvP = false;
             battleState.isTourney = false;
+            battleState.isTower = false; // 👈 ADICIONE ESTA LINHA AQUI!
             battleState.leagueCfg = { rId: regionId, type: battleType, idx: index };
             
             initBattleUI();
@@ -9900,6 +9910,12 @@ window.activateGimmick = async function() {
         });
 
         let geral = combat + breeder + collector + (trainerState.level * 100) + Math.floor(life.totalPkmnExp * 0.01);
+
+        // 👉 REDUÇÃO DE 90% NOS PONTOS (Valoriza o Top Rank dividindo tudo por 10)
+        combat = Math.floor(combat / 10);
+        breeder = Math.floor(breeder / 10);
+        collector = Math.floor(collector / 10);
+        geral = Math.floor(geral / 10);
 
         // 👉 ATUALIZA A MEMÓRIA DO ANDAR MÁXIMO (Para se ele resetar a torre e voltar pro 1)
         if (!trainerState.tower) trainerState.tower = { trainerFloor: 1, wildFloor: 1 };
