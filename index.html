@@ -671,7 +671,23 @@ nav::-webkit-scrollbar-thumb { background: #34495e; border-radius: 5px; }
 
             }
 
-
+	
+	/* Ajustes da Modal de Status no Mobile */
+            #pkmn-modal .modal-content > div:nth-child(2) {
+                flex-direction: column !important;
+                gap: 10px !important;
+            }
+            #pkmn-modal .modal-content > div:nth-child(2) > div:first-child {
+                width: 100% !important;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                border-bottom: 2px solid #ecf0f1;
+                padding-bottom: 10px;
+                margin-bottom: 5px;
+            }
+            #modal-ev-grid { overflow-x: auto; }
+            .ev-row { padding: 5px !important; font-size: 11px !important; }
 
             /* ================= AJUSTES DA POKÉDEX ================= */
 
@@ -1273,6 +1289,7 @@ nav::-webkit-scrollbar-thumb { background: #34495e; border-radius: 5px; }
         <button class="quick-btn" data-target="tab-rival" onclick="switchTab('tab-rival')" title="Batalha Casual">⚔️</button>
         <button class="quick-btn" data-target="tab-gyms" onclick="switchTab('tab-gyms')" title="Liga Pokémon">🏅</button>
         <button class="quick-btn" data-target="tab-tourney" onclick="switchTab('tab-tourney')" title="Torneios">🏆</button>
+        <button class="quick-btn" data-target="tab-tower" onclick="switchTab('tab-tower')" title="Torres de Batalha">🗼</button>
         <button class="quick-btn" data-target="tab-missions" onclick="switchTab('tab-missions')" title="Facções">🛡️</button>
         <button class="quick-btn" data-target="tab-pokedex" onclick="switchTab('tab-pokedex')" title="Pokédex">📖</button>
         <button class="quick-btn" data-target="tab-moves" onclick="switchTab('tab-moves')" title="Fábrica de Ataques">👊</button>
@@ -1297,6 +1314,8 @@ nav::-webkit-scrollbar-thumb { background: #34495e; border-radius: 5px; }
 	<button class="nav-btn" data-target="tab-gyms" onclick="switchTab('tab-gyms')">Liga Pokémon</button>
 
 	<button class="nav-btn" data-target="tab-tourney" onclick="switchTab('tab-tourney')">Torneios</button>
+	
+	<button class="nav-btn" data-target="tab-tower" onclick="switchTab('tab-tower')">Torres de Batalha</button>
 
         <button class="nav-btn" data-target="tab-missions" onclick="switchTab('tab-missions')">Facções</button>
 
@@ -1542,6 +1561,8 @@ nav::-webkit-scrollbar-thumb { background: #34495e; border-radius: 5px; }
             <button class="modal-tab-btn" id="rank-btn-breeder" onclick="switchRankTab('breeder')">Criadores</button>
             <button class="modal-tab-btn" id="rank-btn-collector" onclick="switchRankTab('collector')">Colecionadores</button>
             <button class="modal-tab-btn" id="rank-btn-topmon" onclick="switchRankTab('topmon')">Top Pokémon</button>
+            <button class="modal-tab-btn" id="rank-btn-tower_t" onclick="switchRankTab('tower_t')">Torre (Treinadores)</button>
+            <button class="modal-tab-btn" id="rank-btn-tower_w" onclick="switchRankTab('tower_w')">Torre (Selvagem)</button>
         </div>
 
         <div style="background: #dfe6e9; padding: 15px; border-radius: 8px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
@@ -2124,10 +2145,44 @@ nav::-webkit-scrollbar-thumb { background: #34495e; border-radius: 5px; }
         </div>
     </div>
 
+<!-- ABA: TORRE DE BATALHA -->
+    <div id="tab-tower" class="tab-content padding-wrap">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div>
+                <h2 style="margin-bottom: 5px;">Torres de Batalha</h2>
+                <div style="font-size: 11px; color: #7f8c8d;">Modo Sobrevivência: O HP da equipe NÃO é curado entre os andares (apenas o PP é restaurado).</div>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <div style="background:#e8e8ff; padding:20px; border-radius:8px; border:2px solid #8e44ad; text-align:center;">
+                <h3 style="color:#8e44ad; margin-bottom:10px;">Torre de Treinadores 🧑‍🎤</h3>
+                <p style="font-size:12px; color:#555; margin-bottom:10px;">Enfrente times de 3 Pokémon. O nível sobe 10 a cada andar!</p>
+                <div style="font-size:18px; font-weight:bold; margin-bottom:15px; color:#2c3e50;">Andar Atual: <span id="ui-tower-trainer-floor" style="color:#8e44ad;">1</span></div>
+                <p style="font-size:12px; margin-bottom:15px;">Nível dos Inimigos: <b id="ui-tower-trainer-lvl">5</b></p>
+                <button class="btn" style="background:#8e44ad; width:100%; padding:15px;" onclick="startTower('trainer')">Desafiar Andar</button>
+            </div>
+
+            <div style="background:#e8f8f5; padding:20px; border-radius:8px; border:2px solid #27ae60; text-align:center;">
+                <h3 style="color:#27ae60; margin-bottom:10px;">Torre Selvagem 🐾</h3>
+                <p style="font-size:12px; color:#555; margin-bottom:10px;">Enfrente 1 Pokémon selvagem aleatório super forte!</p>
+                <div style="font-size:18px; font-weight:bold; margin-bottom:15px; color:#2c3e50;">Andar Atual: <span id="ui-tower-wild-floor" style="color:#27ae60;">1</span></div>
+                <p style="font-size:12px; margin-bottom:15px;">Nível do Inimigo: <b id="ui-tower-wild-lvl">5</b></p>
+                <button class="btn btn-success" style="width:100%; padding:15px;" onclick="startTower('wild')">Desafiar Andar</button>
+            </div>
+        </div>
+
+        <div style="margin-top:20px; background:#fff3cd; padding:15px; border-radius:8px; border:1px solid #ffeeba; text-align:center;">
+            <p style="font-size:12px; color:#856404; font-weight:bold; margin-bottom:10px;">Sua equipe foi totalmente dizimada ou você quer recomeçar o farm?</p>
+            <button class="btn btn-danger" onclick="resetTowers()">Curar Equipe e Retornar ao Andar 1</button>
+        </div>
+    </div>
+
+
     <!-- ABA: BATALHA EM TEMPO REAL -->
 
     <div id="tab-battle" class="tab-content">
-
+	
 <div class="arena-bg">
 
 	<div class="pokemon-container" id="enemy-pos">
@@ -2173,29 +2228,19 @@ nav::-webkit-scrollbar-thumb { background: #34495e; border-radius: 5px; }
                 <div class="moves-grid" id="moves-container"></div>
 
                 <div class="action-panel">
-
                     <div id="action-panel-header" style="text-align:center; font-weight:bold; font-size:12px; margin-bottom:5px;">Ações</div>
-
+                    
                     <div id="catch-container" style="display: flex; gap: 5px; margin-bottom: 2px;">
-
                         <select id="pokeball-selector" style="flex:1; font-size:11px; padding:3px; border-radius:4px; border:1px solid #ccc;"></select>
-
                     </div>
 
                     <div class="action-grid">
-
                         <button class="btn btn-danger" id="btn-catch" onclick="handleActionClick('catch')">Lançar Bola</button>
-
                         <button class="btn" id="btn-switch" onclick="handleActionClick('switch')">Trocar</button>
-			
-			<button class="btn" style="background:#f39c12; color:#333; font-weight:900;" id="btn-gimmick" onclick="activateGimmick()">✨ Despertar</button>
-
+                        <button class="btn" style="background:#f39c12; color:#333; font-weight:900;" id="btn-gimmick" onclick="activateGimmick()">✨ Despertar</button>
                         <button class="btn" style="background:#8e44ad;" id="btn-clear-status" onclick="handleActionClick('clear-status')">Limpar Status</button>
-
                         <button class="btn" onclick="fleeBattle()">Fugir</button>
-
                     </div>
-
                 </div>
 
             </div>
@@ -2590,6 +2635,36 @@ let currentEnemyTeam = [];
 
     let battleState = { active: false, paused: false, pIdx: 0, eIdx: 0, isWild: false, isPvP: false, pvpTurn: 1, p1Action: null, p2Action: null, pCd: 0, eCd: 0, globalTick: 0, loopTimer: null, lastCatchTime: 0, catchAttempts: 0 };
 
+	// No início do script (onde carrega o trainerState)
+    if (!trainerState.tower) trainerState.tower = { trainerFloor: 1, wildFloor: 1 };
+
+    // Adicione esta linha dentro da função switchTab(tabId) para atualizar a tela da torre:
+    // if (tabId === 'tab-tower') updateTowerUI();
+
+    function updateTowerUI() {
+        if (!document.getElementById('tab-tower')) return;
+        
+        const tFloor = trainerState.tower.trainerFloor || 1;
+        const wFloor = trainerState.tower.wildFloor || 1;
+        
+        setText('ui-tower-trainer-floor', tFloor);
+        setText('ui-tower-wild-floor', wFloor);
+        
+        setText('ui-tower-trainer-lvl', 5 + (tFloor - 1) * 10);
+        setText('ui-tower-wild-lvl', 5 + (wFloor - 1) * 10);
+    }
+
+    function resetTowers() {
+        showConfirm("Isso vai curar totalmente sua equipe, mas fará você perder o progresso das Torres e voltar ao Andar 1. Confirmar?", () => {
+            trainerState.tower = { trainerFloor: 1, wildFloor: 1 };
+            playerTeam.forEach(p => { p.hp = p.maxHp; p.status = null; p.moves.forEach(m => m.pp = m.maxPp); });
+            saveTrainer();
+            updateTowerUI();
+            renderBoxAndTeam();
+            showMessage("Equipe curada e Torres resetadas!");
+        });
+    }
+
     let activeModalPkmn = { isTeam: false, idx: -1 }; 
 
 
@@ -2627,6 +2702,12 @@ const addIVsMigration = (arr) => {
             if (!p.stats && p.baseStats && p.level && p.evs && p.variant) {
                 p.stats = calculateStats(p.baseStats, p.level, p.evs, p.ivs, p.variant); 
                 p.maxHp = p.stats.hp; p.hp = p.maxHp; migrated = true;
+            }
+            
+            // 👉 CORREÇÃO RETROATIVA PARA COSTAS SHINY (Para o seu Swampert atualizar sozinho!)
+            if (p.variant === 'shiny' && p.spriteBack && p.spriteBack.includes('/back/') && !p.spriteBack.includes('/shiny/')) {
+                p.spriteBack = p.spriteBack.replace('/back/', '/back/shiny/');
+                migrated = true;
             }
         }); return migrated;
     };
@@ -2879,7 +2960,95 @@ function renderTourney() {
     }
 
 
+async function startTower(type) {
+        if (playerTeam.length === 0) return showMessage("Você precisa de uma equipe!");
+        if (playerTeam.every(p => p.hp <= 0)) return showMessage("Sua equipe está desmaiada! Vá na aba das Torres e clique no botão de Curar Equipe.");
 
+        const floor = type === 'trainer' ? trainerState.tower.trainerFloor : trainerState.tower.wildFloor;
+        const level = 5 + (floor - 1) * 10;
+        const count = type === 'trainer' ? 3 : 1;
+
+        showLoader(`Subindo para o Andar ${floor}...`);
+        try {
+            currentEnemyTeam = [];
+            let usedNames = new Set();
+            
+            for (let i = 0; i < count; i++) {
+                let p = null;
+                for (let attempt = 0; attempt < 15; attempt++) {
+                    // Sem forçar variantes ou lendários garantidos para manter dinâmico
+                    p = await fetchRandomPokemon(level, 'any', null, true);
+                    if (p && !usedNames.has(p.name)) break;
+                }
+                if (!p) throw new Error("Falha ao puxar Pokémon");
+                usedNames.add(p.name);
+                
+                // Atributos de Sobrevivência (Eles tem EVs cheios no endgame)
+                const statsKeys = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'];
+                const shuffledKeys = statsKeys.sort(() => 0.5 - Math.random());
+                const t_bonus = Math.min(252, Math.floor(level / 2)); 
+                
+                p.evs[shuffledKeys[0]] = 252;
+                p.evs[shuffledKeys[1]] = 252;
+                p.evs[shuffledKeys[2]] = t_bonus;
+                
+                p.stats = calculateStats(p.baseStats, p.level, p.evs, p.ivs, p.variant);
+                p.maxHp = p.stats.hp; 
+                p.hp = p.maxHp;
+
+                currentEnemyTeam.push(p);
+            }
+
+            // MÁGICA: Não cura a equipe do jogador (Sobrevivência!), mas restaura PP e tira status se passar de andar
+            playerTeam.forEach(p => { 
+                revertTransformation(p); 
+                p.moves.forEach(m => m.pp = m.maxPp); 
+                p.stages = { atk: 0, def: 0, spa: 0, spd: 0, spe: 0 };
+                p.isProtected = false;
+                p.isAttacking = false;
+                p.isAwakened = false;
+                p.healCount = 0;
+            });
+
+            battleState.isLeague = false;
+            battleState.isWild = false;
+            battleState.isPvP = false;
+            battleState.isTourney = false;
+            battleState.isTower = true;
+            battleState.towerType = type;
+            
+            // Força pular pro primeiro Pokémon vivo
+            battleState.pIdx = playerTeam.findIndex(p => p.hp > 0);
+            battleState.eIdx = 0;
+            battleState.pCd = getMaxCd(playerTeam[battleState.pIdx]);
+            battleState.eCd = Math.floor(getMaxCd(currentEnemyTeam[0]) / 2);
+            battleState.globalTick = 0;
+            battleState.active = true;
+            battleState.gimmickUsed = false;
+            battleState.enemyGimmickUsed = false;
+            battleState.paused = false;
+
+            document.getElementById('nav-battle').disabled = false;
+            document.getElementById('catch-container').style.display = 'none'; // Não pode capturar em Torre
+            document.getElementById('btn-catch').style.display = 'none';
+
+            // Altera o Fundo da Arena para indicar a Torre
+            const arenaEl = document.querySelector('.arena-bg');
+            if (arenaEl) arenaEl.style.background = type === 'trainer' ? "linear-gradient(180deg, #9b59b6 0%, #8e44ad 35%, #34495e 35%, #2c3e50 100%)" : "linear-gradient(180deg, #2ecc71 0%, #27ae60 35%, #1abc9c 35%, #16a085 100%)";
+
+            switchTab('tab-battle');
+            updateBattleUI();
+            log(`<b>Bem-vindo ao Andar ${floor}! Lute para sobreviver!</b>`);
+            
+            if (battleState.loopTimer) clearTimeout(battleState.loopTimer);
+            battleLoop();
+
+        } catch (e) {
+            console.error(e);
+            showMessage("Erro ao carregar o andar da Torre.");
+        }
+        hideLoader();
+    }
 
 async function startTourneyFight(opponentIdx) {
         const t = trainerState.ongoingTourney;
@@ -2906,11 +3075,17 @@ async function startTourneyFight(opponentIdx) {
                 tLevel = Math.max(1, maxPlayerLvl + Math.floor(Math.random() * 11) - 5);
             }
 
-for(let i=0; i<6; i++) {
-                const p = await fetchRandomPokemon(tLevel, 'any', getRandomEliteVariant());
+let usedNames = new Set();
+            for(let i=0; i<6; i++) {
+                let p = null;
+                // 👈 Tenta até 10x achar um bicho que não seja repetido no Torneio
+                for(let attempt = 0; attempt < 10; attempt++) {
+                    p = await fetchRandomPokemon(tLevel, 'any', getRandomEliteVariant());
+                    if (p && !usedNames.has(p.name)) break;
+                }
                 if (!p) throw new Error("Falha ao puxar Pokemon");
+                usedNames.add(p.name);
                 
-// 👉 LÓGICA ATUALIZADA: Distribuição Brutal (Com Bônus de Treinamento = Nível)
                 const statsKeys = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'];
                 const shuffledKeys = statsKeys.sort(() => 0.5 - Math.random());
                 
@@ -4065,10 +4240,21 @@ async function createPokemonObject(apiData, level, movePoolType = 'custom', forc
     }));
 
 let spriteFront = finalData.sprites.front_default || finalData.sprites.other['official-artwork'].front_default; 
-    if (variantKey === 'shiny' && finalData.sprites.front_shiny) spriteFront = finalData.sprites.front_shiny;
+    let spriteBack = finalData.sprites.back_default || spriteFront;
+
+    if (variantKey === 'shiny') {
+        if (finalData.sprites.front_shiny) spriteFront = finalData.sprites.front_shiny;
+        if (finalData.sprites.back_shiny) spriteBack = finalData.sprites.back_shiny;
+    }
+
     if (Math.random() < 0.5 && finalData.sprites.front_female) {
         spriteFront = finalData.sprites.front_female;
-        if (variantKey === 'shiny' && finalData.sprites.front_shiny_female) spriteFront = finalData.sprites.front_shiny_female;
+        if (finalData.sprites.back_female) spriteBack = finalData.sprites.back_female;
+        
+        if (variantKey === 'shiny') {
+            if (finalData.sprites.front_shiny_female) spriteFront = finalData.sprites.front_shiny_female;
+            if (finalData.sprites.back_shiny_female) spriteBack = finalData.sprites.back_shiny_female;
+        }
     }
 
     // 👉 A MÁGICA: Extrai o ID da Pokédex cortando a URL da espécie!
@@ -4080,7 +4266,7 @@ let spriteFront = finalData.sprites.front_default || finalData.sprites.other['of
 
     return { 
         id: finalData.id, 
-        dexId: dexId, // 👈 NOVO CAMPO: Agora o jogo sabe o ID oficial de qualquer forma!
+        dexId: dexId, 
         name: finalData.name, 
         level: level,
         exp: 0, 
@@ -4096,7 +4282,7 @@ let spriteFront = finalData.sprites.front_default || finalData.sprites.other['of
         stats: stats, 
         moves: moves, 
         spriteFront: spriteFront, 
-        spriteBack: finalData.sprites.back_default || spriteFront // 👈 Fallback: se não tiver costas, usa a frente
+        spriteBack: spriteBack // 👈 AGORA PEGA A VERSÃO SHINY CORRETA DE COSTAS!
     };
 }
 
@@ -4287,16 +4473,18 @@ async function getBaseSpecies(nameOrId) {
         } 
     }
 
-    async function getCorrectEvolutionByLevel(rawName, currentLevel, preferredType = 'any') {
+    async function getCorrectEvolutionByLevel(rawName, currentLevel, preferredType = 'any', forceEvo = false) {
         try {
             const baseName = await getBaseSpecies(rawName);
 
-            // 👉 MÁGICA DA ESPECIALIDADE: Força o Eevee a respeitar o Tipo do Treinador/Ginásio!
-            if (baseName === 'eevee' && preferredType !== 'any') {
+            // 👉 MÁGICA DA ESPECIALIDADE: Força o Eevee a respeitar o Tipo!
+            if (baseName === 'eevee') {
                 const eeveeMap = { water:'vaporeon', electric:'jolteon', fire:'flareon', psychic:'espeon', dark:'umbreon', grass:'leafeon', ice:'glaceon', fairy:'sylveon' };
-                if (eeveeMap[preferredType]) {
-                    // Se o tipo bater com uma Eeveelution, ignora a roleta e força ela!
+                if (preferredType !== 'any' && eeveeMap[preferredType]) {
                     return await getValidForm(eeveeMap[preferredType], rawName);
+                } else if (forceEvo) {
+                    const allEves = Object.values(eeveeMap);
+                    return await getValidForm(allEves[Math.floor(Math.random() * allEves.length)], rawName);
                 }
             }
 
@@ -4326,8 +4514,9 @@ async function getBaseSpecies(nameOrId) {
                             currentForm = evo.species.name; currentNode = evo; evolvedInThisStep = true; hasEvolved = true; break; 
                         }
                     } else {
-                        let evolutionChance = 0.5 + (currentLevel / 250); 
-                        if (currentLevel >= 20 && Math.random() < evolutionChance) {
+                        // 👉 MÁGICA: Evoluções por Pedra/Troca evoluem 100% das vezes se forceEvo for true!
+                        let evolutionChance = forceEvo ? 1.0 : 0.5 + (currentLevel / 250); 
+                        if (forceEvo || (currentLevel >= 20 && Math.random() < evolutionChance)) {
                             currentForm = evo.species.name; currentNode = evo; evolvedInThisStep = true; hasEvolved = true; break;
                         }
                     }
@@ -5520,7 +5709,17 @@ playerTeam.forEach((pkmn, idx) => {
 /* ================= UI & Modals ================= */
     function switchTab(tabId) { 
         if (window.innerWidth <= 768) document.querySelector('nav').classList.add('collapsed'); // Esconde no mobile ao clicar
+        
+        // 👉 NOVA TRAVA DE ABAS: Se sair da aba de batalha no meio da luta, força o botão Fugir/Pausar silenciosamente!
+        if (battleState.active && tabId !== 'tab-battle') {
+            const isBattleActiveVisual = document.getElementById('tab-battle').classList.contains('active');
+            if (isBattleActiveVisual) {
+                fleeBattle(true); // Foge forçadamente sem fazer perguntas
+            }
+        }
+
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active')); 
+        document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active')); 
         document.querySelectorAll('.quick-btn').forEach(el => el.classList.remove('active')); // 👈 Limpa a barra de ícones
         document.getElementById(tabId).classList.add('active'); 
@@ -6580,16 +6779,16 @@ async function fetchRandomPokemon(level, forcedType = 'any', forcedVariant = nul
                 
                 for(let i=0; i<count; i++) { 
                     let success = false; let innerAttempts = 0; 
-                    while(!success && innerAttempts < 10) { 
+                    while(!success && innerAttempts < 15) { 
                         try { 
                             const randomName = vMons[Math.floor(Math.random() * vMons.length)]; 
                             let finalName = randomName;
                             
-                            // 👉 NOVA REGRA: Variação de Nível +-2 e Limite Dinâmico
                             let varLevel = Math.max(1, Math.min(maxRivalLvl, level + Math.floor(Math.random() * 5) - 2));
-
-                            // 👉 AQUI ESTÁ A CORREÇÃO: Passando o 'type' para a evolução forçar a Eeveelution correta!
                             finalName = await getCorrectEvolutionByLevel(finalName, varLevel, type);
+
+                            // 👈 A MÁGICA: Se já tiver esse nome no time rival, ele lança um erro e sorteia de novo!
+                            if (rivalTeam.some(p => p.name === finalName)) throw new Error("Duplicado");
 
                             if (varLevel < 50 && isLegendary(finalName)) throw new Error("Lendário bloqueado");
                             
@@ -6926,6 +7125,7 @@ async function startWildEncounter() {
         battleState.isPvP = false; 
         battleState.isLeague = false; 
         battleState.isTourney = false; 
+        battleState.isTower = false; // 👈 GARANTE QUE A TORRE É DESLIGADA
         initBattleUI();
         
     } catch(e) { 
@@ -7049,21 +7249,21 @@ playerTeam.forEach(p => { revertTransformation(p); p.maxHp = p.stats.hp; p.hp = 
         
 
         battleState.pCd = pStartCd; 
-
         battleState.eCd = eStartCd; 
-
         battleState.lastCatchTime = 0;
-
         battleState.catchAttempts = 0;
-
-     	battleState.participants = [0]; // O primeiro Pokémon sempre participa
+        
+        // Garante a memória de troca
+        battleState.participants = [0]; 
+        
+        // 👉 CORREÇÃO DO VAZAMENTO: Se uma variável não foi setada antes de iniciar, ela sempre será falsa!
+        if (battleState.autoAttackSlot === undefined) battleState.autoAttackSlot = -1;
+        if (battleState.isTower === undefined) battleState.isTower = false;
 
         battleState.globalTick = 0; 
-
         battleState.active = true; 
-	battleState.gimmickUsed = false; // Trava de 1 vez por batalha
-	battleState.enemyGimmickUsed = false; // Trava de 1 vez por batalha para o NPC
-
+        battleState.gimmickUsed = false; 
+        battleState.enemyGimmickUsed = false; 
         battleState.paused = false;
 
         
@@ -7225,13 +7425,24 @@ async function battleLoop() {
                 const header = document.getElementById('action-panel-header');
                 if (header) header.innerHTML = `Ações (Espera Recarga ${(Math.max(0, pMaxCd - battleState.pCd)/1000).toFixed(1)}s)`; 
             }
+        }
 
-            if (battleState.pCd >= pMaxCd) {
-                if (!battleState.isPvP) {
-                    const header = document.getElementById('action-panel-header');
-                    if (header) header.innerHTML = `Ações (Pronto!)`;
+        // 👉 CORREÇÃO: Verificação independente! Agora o Auto-Ataque funciona logo de cara no 1º turno!
+        if (battleState.pCd >= pMaxCd && !playerMon.isAttacking && !battleState.paused) {
+            if (!battleState.isPvP) {
+                const header = document.getElementById('action-panel-header');
+                if (header) header.innerHTML = `Ações (Pronto!)`;
+            }
+            toggleControls(true);
+            
+            if (battleState.autoAttackSlot !== undefined && battleState.autoAttackSlot !== -1) {
+                const slot = battleState.autoAttackSlot;
+                if (playerMon.moves[slot] && playerMon.moves[slot].pp > 0) {
+                    handleActionClick('move', slot);
+                } else {
+                    battleState.autoAttackSlot = -1;
+                    updateBattleUI();
                 }
-                toggleControls(true);
             }
         }
 
@@ -7264,6 +7475,7 @@ async function battleLoop() {
                             if ((isDesperate || isLastMon || (battleState.isLeague && Math.random() < 0.2)) && isStrongMoveAvailable) {
                                 battleState.enemyGimmickUsed = true;
                                 enemyMon.isAwakened = true;
+                                enemyMon.invulnerable = true; // 👈 I-FRAMES DO INIMIGO
                                 
                                 // Aumenta o HP Máximo do inimigo em 20% e cura 100%!
                                 enemyMon.maxHp = Math.floor(enemyMon.stats.hp * 1.20);
@@ -7276,9 +7488,9 @@ async function battleLoop() {
                                 
                                 updateBattleUI(); 
                                 setTimeout(() => {
-                                    // Proteção de I-Frames para o Inimigo!
                                     enemyMon.hp = enemyMon.maxHp;
                                     enemyMon.faintProcessed = false;
+                                    enemyMon.invulnerable = false; // 👈 I-FRAMES: DESATIVA
 
                                     document.getElementById('enemy-pos').classList.remove('catch-shake');
                                     updateBattleUI();
@@ -7469,11 +7681,43 @@ document.getElementById('enemy-hp-text').innerText = `${Math.ceil(e.hp)}/${e.max
         const activePkmn = p; const movesEl = document.getElementById('moves-container'); movesEl.innerHTML = ''; let hasMoves = false;
         activePkmn.moves.forEach((m, idx) => { 
             if (m.pp > 0) hasMoves = true; 
+            
+            let isAuto = battleState.autoAttackSlot === idx;
+            
+            const btnContainer = document.createElement('div');
+            btnContainer.style.position = 'relative';
+            btnContainer.style.height = '100%';
+
             const btn = document.createElement('button'); btn.className = 'btn'; 
+            btn.style.width = '100%'; btn.style.height = '100%';
             btn.innerHTML = `${m.name} <span class="type-badge type-${m.type}">${m.type} | Pwr:${m.power} | PP:${m.pp}/${m.maxPp}</span>`; 
+            
+            if (isAuto) btn.style.border = '2px solid #f1c40f'; 
+
             if (m.pp <= 0 || battleState.pCd < pMaxCd) btn.disabled = true; 
             btn.onclick = () => handleActionClick('move', idx); 
-            movesEl.appendChild(btn); 
+
+            // 👉 CORREÇÃO: CSS fixo (width/height 22px) e classe '.auto-btn' para ignorar o bloqueio de Cooldown!
+            const autoBtn = document.createElement('button');
+            autoBtn.className = 'auto-btn'; 
+            autoBtn.innerHTML = '🔄';
+            autoBtn.title = 'Alternar Auto-Ataque';
+            autoBtn.style.cssText = `position:absolute; top:4px; right:4px; width:22px; height:22px; font-size:10px; border:none; background:${isAuto ? '#f1c40f' : '#ecf0f1'}; border-radius:50%; cursor:pointer; display:flex; justify-content:center; align-items:center; z-index:10; box-shadow: 0 1px 3px rgba(0,0,0,0.3);`;
+            
+            autoBtn.onclick = (e) => {
+                e.stopPropagation();
+                battleState.autoAttackSlot = isAuto ? -1 : idx; 
+                updateBattleUI();
+                
+                // 👉 MÁGICA: Se você clicar na rodinha e a barra já estiver cheia, ele ataca na mesma hora!
+                if (battleState.autoAttackSlot !== -1 && battleState.pCd >= pMaxCd && !p.isAttacking && !battleState.paused) {
+                    handleActionClick('move', battleState.autoAttackSlot);
+                }
+            };
+
+            btnContainer.appendChild(btn);
+            btnContainer.appendChild(autoBtn);
+            movesEl.appendChild(btnContainer); 
         });
         
         if(!hasMoves || activePkmn.moves.length === 0) { 
@@ -7588,9 +7832,8 @@ const pMaxCd = getMaxCd(playerTeam[battleState.pIdx]);
     async function submitPvPSwitchAction(idx) { let action = { type: 'switch', idx: idx }; if (battleState.pvpTurn === 1) { battleState.p1Action = action; battleState.pvpTurn = 2; updateBattleUI(); } else { battleState.p2Action = action; await executePvPTurn(); } }
 
 function toggleControls(state) { 
-        // 1. Excluímos o #btn-gimmick da regra geral para que ele não sofra interferência
-        document.querySelectorAll('#moves-container button, .action-panel button:not(#btn-catch):not(#btn-gimmick), .action-panel select').forEach(b => b.disabled = !state); 
-
+        // 👉 CORREÇÃO: Ignora o botão de auto-ataque (.auto-btn) para que ele nunca seja desativado e você possa mudar a Flag!
+        document.querySelectorAll('#moves-container button:not(.auto-btn), .action-panel button:not(#btn-catch):not(#btn-gimmick), .action-panel select').forEach(b => b.disabled = !state);
         // 2. Trava Dinâmica do Despertar (Gimmick)
         const btnGimmick = document.getElementById('btn-gimmick');
         if (btnGimmick) {
@@ -7642,22 +7885,22 @@ function getModifiedStat(pkmn, statKey) {
         let a = getModifiedStat(attacker, isPhys ? 'atk' : 'spa'); 
         let d = getModifiedStat(defender, isPhys ? 'def' : 'spd');
         
-        // 👉 CORREÇÃO: RNG (85% a 100%) e Efetividade de Tipo
+        // RNG (85% a 100%) e Efetividade de Tipo
         const rng = (Math.floor(Math.random() * 16) + 85) / 100;
         const typeMod = getTypeMod(move.type, defender.types);
 
         let damage = Math.floor(Math.floor(Math.floor(2 * attacker.level / 5 + 2) * move.power * a / d) / 50) + 2;
         const stab = attacker.types.includes(move.type) ? 1.5 : 1; 
 
-const isPlayer = attacker === playerTeam[battleState.pIdx];
+        const isPlayer = attacker === playerTeam[battleState.pIdx];
         
         let factionDmg = 1;
         if (isPlayer) {
-factionDmg = 1 + (getFactionBuff(2) * 0.02);
-            if (trainerState.achievements && trainerState.achievements.dex_paldea) factionDmg *= 1.2; // 👈 Relíquia Paldea
+            factionDmg = 1 + (getFactionBuff(2) * 0.02);
+            if (trainerState.achievements && trainerState.achievements.dex_paldea) factionDmg *= 1.2; 
         } else {
-            // 👉 NPCs pertencem à Vanguarda! (Nível da facção é Level/10, Mínimo 1, Máximo 10)
-            const npcFacLevel = Math.max(1, Math.min(10, Math.floor(attacker.level / 10)));
+            // 👉 NPCs pertencem à Vanguarda! Se ele tem patente da Liga, usa a patente, senão escala por nível
+            const npcFacLevel = attacker.facLevel !== undefined ? attacker.facLevel : Math.max(1, Math.min(10, Math.floor(attacker.level / 10)));
             factionDmg = 1 + (npcFacLevel * 0.02);
         }
         
@@ -7670,12 +7913,15 @@ function applyMoveEffects(attacker, defender, move, damageDealt = 0, targetId = 
         if (!move.effect || move.effect === 'none') return;
         if (attacker.hp <= 0) return; // 👈 TRAVA ZUMBI: Se o Pokémon morreu no meio da animação, cancela o efeito!
         
-	let chance = 20; 
+        // 👉 NOVA TRAVA: Invencibilidade anula status e debuffs inimigos!
+        const isNegativeEffect = ['burn', 'poison', 'paralysis', 'sleep', 'freeze', 'confusion', 'flinch'].includes(move.effect) || move.effect.startsWith('debuff_');
+        if (defender.invulnerable && isNegativeEffect) return;
+
+        let chance = 20; 
         // 👇 ADDED: Buffs e Debuffs agora têm 100% de chance, além dos outros efeitos garantidos
         if (move.category === 'status' || ['quick', 'heal', 'protect', 'baton_pass'].includes(move.effect) || move.effect.startsWith('buff_') || move.effect.startsWith('debuff_')) {
             chance = 100;
         }
-
         if (Math.random() * 100 > chance) return;
 
 
@@ -7968,6 +8214,13 @@ async function executeAttackAsync(attacker, defender, move, isPlayer) {
             if (move.power > 0) {
                 const result = calculateDamage(attacker, defender, move); document.getElementById(targetId).classList.add('dmg-anim'); await sleep(400); document.getElementById(targetId).classList.remove('dmg-anim');
                 finalDmg = result.dmg; 
+                
+                // 👉 I-FRAMES (INVENCIBILIDADE): Se o Pokémon estiver Despertando, ele não toma dano nenhum!
+                if (defender.invulnerable) {
+                    finalDmg = 0;
+                    log(`A aura celestial de <b>${(defender.name||'').replace(/-/g,' ')}</b> repeliu todo o dano!`);
+                }
+                
                 defender.hp -= finalDmg; if(defender.hp < 0) defender.hp = 0;
                 
                 // 👉 BALÃO COM O DANO SOFRIDO E EFETIVIDADE
@@ -7977,10 +8230,24 @@ async function executeAttackAsync(attacker, defender, move, isPlayer) {
                 if(result.typeMod < 1 && result.typeMod > 0) { log(`<span style="color:#95a5a6">Não é muito efetivo...</span>`); dmgColor = '#95a5a6'; effectText = ' <span style="font-size:10px;">(Resistiu)</span>';} 
                 if(result.typeMod === 0) { log(`Não teve efeito.`); effectText = ' (Imune)'; finalDmg = 0; dmgColor = '#bdc3c7';}
                 
-                createFloatingText(targetId, `-${finalDmg}${effectText}`, dmgColor);
+                if (defender.invulnerable) {
+                    createFloatingText(targetId, `IMUNE!`, '#bdc3c7');
+                } else {
+                    createFloatingText(targetId, `-${finalDmg}${effectText}`, dmgColor);
+                }
 
-	} else { 
+            } else {
                 log(`<span style="color:#3498db">Golpe de Status!</span>`); await sleep(400); 
+            }
+            
+            // 👉 NOVA MECÂNICA DE FADIGA: Reseta se usar 2 golpes que não curam
+            if (move.effect === 'heal' || move.name.toLowerCase().trim() === 'recover') {
+                attacker.nonHealTurns = 0;
+            } else {
+                attacker.nonHealTurns = (attacker.nonHealTurns || 0) + 1;
+                if (attacker.nonHealTurns >= 2) {
+                    attacker.healCount = 0; // Fadiga zerada após 2 turnos ofensivos!
+                }
             }
             
             // 👈 NOVA TRAVA: Só tenta aplicar efeitos (Cura, Buffs, Veneno) se QUEM ATACOU estiver VIVO!
@@ -8126,6 +8393,23 @@ function checkFaint(pkmn, isPlayerTeam) {
                 }, 1000); 
             } else { 
                 setTimeout(() => { 
+                    // 👉 NOVA REGRA DA TORRE: Perdeu na Torre
+                    if (battleState.isTower) {
+                        const tType = battleState.towerType;
+                        const floor = tType === 'trainer' ? trainerState.tower.trainerFloor : trainerState.tower.wildFloor;
+                        
+                        // Zera o progresso do andar específico
+                        if (tType === 'trainer') trainerState.tower.trainerFloor = 1;
+                        else trainerState.tower.wildFloor = 1;
+                        
+                        saveTrainer();
+                        updateTowerUI();
+                        showMessage(`<b>Torre Falhou!</b><br><br>Sua equipe foi totalmente derrotada no Andar ${floor}. Seu progresso foi zerado. Vá na aba da Torre, clique no botão vermelho para curar a equipe e tente novamente!`);
+                        endBattle();
+                        return;
+                    }
+                    //... resto do código de morte ...
+                
                     log("<b>Você foi derrotado! Ninguém mais pode lutar!</b>"); 
                     showMessage("<b>Derrota!</b><br><br>Todos os seus Pokémon desmaiaram. Volte para o PC para curá-los (no futuro) e treine mais!");
                     
@@ -8177,6 +8461,69 @@ function checkFaint(pkmn, isPlayerTeam) {
 
                     if (battleState.isTourney) processTourneyVictory(true);
                     if (battleState.isLeague) processLeagueVictory();
+                    
+                    // 👉 NOVA REGRA DA TORRE: Venceu o andar da torre!
+                    if (battleState.isTower) {
+                        const tType = battleState.towerType;
+                        const floor = tType === 'trainer' ? trainerState.tower.trainerFloor : trainerState.tower.wildFloor;
+                        
+                        let towerRewardMsg = "";
+                        
+                        if (floor % 10 === 0) {
+                            if (tType === 'wild') {
+                                if (floor <= 50) {
+                                    if (!trainerState.inventory['Great Ball']) trainerState.inventory['Great Ball'] = {count:0, bonus:1.5};
+                                    trainerState.inventory['Great Ball'].count += 1;
+                                    towerRewardMsg = "<br>🎁 <b>Bônus (Selvagem):</b> +1 Great Ball!";
+                                } else if (floor <= 100) {
+                                    if (!trainerState.inventory['Ultra Ball']) trainerState.inventory['Ultra Ball'] = {count:0, bonus:2.0};
+                                    trainerState.inventory['Ultra Ball'].count += 1;
+                                    towerRewardMsg = "<br>🎁 <b>Bônus (Selvagem):</b> +1 Ultra Ball!";
+                                } else if (floor === 200) {
+                                    towerRewardMsg = "<br>📡 <b>Bônus Especial:</b> 1 Carga Radar Nvl 1!";
+                                    trainerState.finder = { active: true, level: 1, targetName: "Aleatório", targetId: 1, searchesLeft: 100 };
+                                } else if (floor === 300) {
+                                    towerRewardMsg = "<br>📡 <b>Bônus Especial:</b> 1 Carga Radar Nvl 2!";
+                                    trainerState.finder = { active: true, level: 2, targetName: "Aleatório", targetId: 1, searchesLeft: 100 };
+                                } else if (floor === 400) {
+                                    towerRewardMsg = "<br>📡 <b>Bônus Especial:</b> 1 Carga Radar Nvl 3!";
+                                    trainerState.finder = { active: true, level: 3, targetName: "Aleatório", targetId: 1, searchesLeft: 100 };
+                                } else if (floor === 500) {
+                                    towerRewardMsg = "<br>📡 <b>Bônus Especial:</b> 1 Carga Radar Nvl 4!";
+                                    trainerState.finder = { active: true, level: 4, targetName: "Aleatório", targetId: 1, searchesLeft: 100 };
+                                } else if (floor === 600) {
+                                    towerRewardMsg = "<br>📡 <b>Bônus Especial:</b> 1 Carga Radar Nvl 5!";
+                                    trainerState.finder = { active: true, level: 5, targetName: "Aleatório", targetId: 1, searchesLeft: 100 };
+                                } else if (floor >= 700) {
+                                    if (!trainerState.inventory['Master Ball']) trainerState.inventory['Master Ball'] = {count:0, bonus:255};
+                                    trainerState.inventory['Master Ball'].count += 1;
+                                    towerRewardMsg = "<br>🎁 <b>Bônus Divino:</b> +1 Master Ball!";
+                                }
+                            } else {
+                                let floorMoney = floor * 5000;
+                                trainerState.money += floorMoney;
+                                towerRewardMsg = `<br>💰 <b>Bônus de Andar:</b> +${floorMoney.toLocaleString('pt-BR')} P$!`;
+                            }
+                        }
+
+                        if (tType === 'trainer') trainerState.tower.trainerFloor++;
+                        else trainerState.tower.wildFloor++;
+                        
+                        setTimeout(() => {
+                            updateTowerUI();
+                            
+                            // 👉 O LOOP INFINITO: Não fecha a tela, apenas mostra um balão invisível rápido e manda o próximo inimigo!
+                            const toast = document.createElement('div');
+                            toast.style.cssText = 'position:absolute; top:20%; left:50%; transform:translate(-50%, -50%); background:rgba(0,0,0,0.8); color:white; padding:10px 20px; border-radius:20px; z-index:9999; font-weight:bold;';
+                            toast.innerHTML = `Andar ${floor} Concluído!${towerRewardMsg}`;
+                            document.getElementById('tab-battle').appendChild(toast);
+                            setTimeout(() => toast.remove(), 2500);
+
+                            // Chama o próximo andar direto!
+                            startTower(tType);
+                        }, 500);
+                        return; // O código da Torre acaba AQUI e não passa pro "endBattle()"
+                    }
 
                     if (!battleState.isWild) { 
                         const rLvlAvg = Math.floor(currentEnemyTeam.reduce((acc, curr) => acc + curr.level, 0) / currentEnemyTeam.length); 
@@ -8199,9 +8546,12 @@ function checkFaint(pkmn, isPlayerTeam) {
     }
 
 async function performSwitchAndEnemyTurn(choice, isFainted, isBatonPass = false) {
-	if (!battleState.participants.includes(choice)) battleState.participants.push(choice);
+        // 👉 PROTEÇÃO CONTRA O ERRO DE UNDEFINED! (Se a lista não existir, ele cria)
+        if (!battleState.participants) battleState.participants = [battleState.pIdx];
+        
+        if (!battleState.participants.includes(choice)) battleState.participants.push(choice);
 
-        battleState.pIdx = choice; 
+        battleState.pIdx = choice;
 
         battleState.pCd = 0; 
 
@@ -8250,6 +8600,11 @@ async function performSwitchAndEnemyTurn(choice, isFainted, isBatonPass = false)
 
 
 function promptSwitch(isForced = false, isBatonPass = false) {
+        // 👉 CORREÇÃO DO BUG DO DUPLO DESMAIO: Se a batalha acabou ou o inimigo já morreu, não pede pra trocar!
+        const enemyAlive = currentEnemyTeam.some(m => m.hp > 0);
+        if (!enemyAlive && !isBatonPass) return;
+        if (!battleState.active) return;
+
         const isFainted = playerTeam[battleState.pIdx].hp <= 0; 
         const alive = playerTeam.map((m,i) => m.hp > 0 && i !== battleState.pIdx ? i : -1).filter(i => i !== -1);
         
@@ -8518,19 +8873,23 @@ if(e.types) e.types.forEach(t => updateMissionProgress(`catch_type_${t}`, 1));
     }
 
 
-window.fleeBattle = function() {
+window.fleeBattle = function(force = false) {
         if (!battleState.active) return;
         
         if (battleState.isTourney) {
-            showConfirm("Fugir de um torneio resultará em uma derrota instantânea por 6x0. Tem certeza disso?", () => {
+            const executeFleeTourney = () => {
                 log("<span style='color:#e74c3c; font-weight:bold;'>Você desistiu da partida! (Derrota 6x0)</span>");
-                // Força a derrota esmagadora no cálculo de Saldo de Gols:
                 playerTeam.forEach(p => p.hp = 0);
                 currentEnemyTeam.forEach(e => e.hp = e.maxHp);
-                
                 processTourneyVictory(false);
                 setTimeout(endBattle, 1500);
-            });
+            };
+            if (force) executeFleeTourney();
+            else showConfirm("Fugir de um torneio resultará em uma derrota instantânea por 6x0. Tem certeza disso?", executeFleeTourney);
+        } else if (battleState.isTower) {
+            log("<span style='color:#f39c12; font-weight:bold;'>Você pausou sua escalada na Torre.</span>");
+            if (!force) showMessage("<b>Escalada Pausada!</b><br><br>Você parou no andar atual. Quando quiser continuar, basta clicar em Desafiar Andar. A vida de sua equipe não foi recuperada.");
+            endBattle();
         } else {
             log("Você fugiu da batalha de forma segura!");
             endBattle();
@@ -8547,10 +8906,11 @@ function endBattle() {
             switchTab('tab-wild'); 
         } else if (battleState.isTourney) {
             switchTab('tab-tourney'); 
-        } else if (battleState.isLeague) { // 👈 NOVA REGRA: Volta para a aba da Liga!
+        } else if (battleState.isLeague) { 
             switchTab('tab-gyms');
+        } else if (battleState.isTower) { // 👈 NOVA REGRA DE ROTA
+            switchTab('tab-tower');
         } else {
-            // Volta para a aba do Treinador se for uma batalha casual (Rival)
             switchTab('tab-trainer'); 
         }
     }
@@ -8930,20 +9290,25 @@ function renderGyms() {
         const foreignMons = validMons.filter(p => p.id < minId || p.id > maxId);
         
         let team = [];
+        let usedMons = new Set(); // 👈 Cria a memória de quem já foi escolhido
         for(let i=0; i < count; i++) {
-            let chosenPool = validMons; // Padrão: escolhe de todos
+            let chosenPool = validMons; 
             
-            // 👉 A MÁGICA DOS 70%: Sorteia se vai tentar pegar da região!
-            // (Só tenta se existir algum Pokémon daquele tipo na região local)
             if (Math.random() <= 0.70 && regionalMons.length > 0) {
                 chosenPool = regionalMons;
             } else if (foreignMons.length > 0) {
-                chosenPool = foreignMons; // Cai nos 30% ou não tem bicho da região
+                chosenPool = foreignMons; 
             }
 
-            const selected = chosenPool[Math.floor(Math.random() * chosenPool.length)];
-            const lvl = Math.max(1, Math.min(100, baseLevel + Math.floor(Math.random() * 5) - 2)); // Varia de -2 a +2
+            // 👈 Filtra os que já estão no time
+            let available = chosenPool.filter(p => !usedMons.has(p.id));
+            if (available.length === 0) available = validMons.filter(p => !usedMons.has(p.id));
+            if (available.length === 0) available = validMons; // Backup extremo
+
+            const selected = available[Math.floor(Math.random() * available.length)];
+            usedMons.add(selected.id); // Registra na memória
             
+            const lvl = Math.max(1, Math.min(100, baseLevel + Math.floor(Math.random() * 5) - 2)); 
             team.push({ n: selected.n, l: lvl });
         }
 
@@ -8963,47 +9328,62 @@ async function startLeagueBattle(regionId, battleType, index) {
         else if (battleType === 'champ') { targetData = data.champ; if(state.c) isRevanche = true; }
 
         const prestige = state.prestige || 0;
-        const actualLevel = targetData.l * Math.pow(2, prestige); // 👉 NÍVEL DOBRA AQUI
+        const actualLevel = targetData.l * Math.pow(2, prestige); 
         
-        // Chave única salva o progresso e o prestígio
         const teamKey = `r${regionId}_${battleType}_${index}_s${battleType==='gym_trainer'?state.s:0}_p${prestige}`;
         
         showLoader(`Viajando até o campo de batalha...`);
         try {
-            if (!trainerState.leagueTeams[teamKey] || isRevanche) {
-                // 👇 AQUI A CORREÇÃO: Passando o 'regionId' como quarto parâmetro!
-                const signature = await generateLeagueTeamSignature(targetData.t, actualLevel, pkmCount, regionId);
-                trainerState.leagueTeams[teamKey] = signature;
+            if (!trainerState.leagueTeams[teamKey]) {
+                const baseSignature = await generateLeagueTeamSignature(targetData.t, actualLevel, pkmCount, regionId);
+                
+                let finalSignature = [];
+                for (let sig of baseSignature) {
+                    // 👉 TRUE: Força a evolução 100% para os NPCs da liga!
+                    const properName = await getCorrectEvolutionByLevel(sig.n, sig.l, targetData.t, true);
+                    const variant = getRandomEliteVariant();
+                    finalSignature.push({ n: properName, l: sig.l, v: variant });
+                }
+                trainerState.leagueTeams[teamKey] = finalSignature;
                 saveTrainer();
             }
 
             const teamSignature = trainerState.leagueTeams[teamKey];
             currentEnemyTeam = [];
             
+            // 👉 DEFINE A PATENTE DA VANGUARDA
+            let facLevel = 5; 
+            if (battleType === 'e4') facLevel = 7;
+            if (battleType === 'champ') facLevel = 10;
+            
             for (let sig of teamSignature) {
-// 👉 A MÁGICA: Força a equipa da Liga a respeitar a Evolução em Cascata!
-                const properName = await getCorrectEvolutionByLevel(sig.n, sig.l, targetData.t);
+                // 👉 VACINA: Se for um save velho sem variante ou não evoluído, ajeita agora!
+                let finalName = sig.n;
+                if (!sig.v) {
+                    finalName = await getCorrectEvolutionByLevel(sig.n, sig.l, targetData.t, true);
+                }
+                const finalVariant = sig.v || getRandomEliteVariant();
                 
-const pData = await fetchAPI(`https://pokeapi.co/api/v2/pokemon/${properName}`);
-                const pkmn = await createPokemonObject(pData, sig.l, 'npc', getRandomEliteVariant());
+                const pData = await fetchAPI(`https://pokeapi.co/api/v2/pokemon/${finalName}`);
+                const pkmn = await createPokemonObject(pData, sig.l, 'npc', finalVariant);
                 
-// 👉 LÓGICA ATUALIZADA: Chefes da Liga quebram os limites baseados no Nível
+                // Grava a patente no Pokémon para ser lida pelo cálculo de dano
+                pkmn.facLevel = facLevel;
+                
                 const statsKeys = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'];
                 const shuffledKeys = statsKeys.sort(() => 0.5 - Math.random());
                 
-                const t_bonus = sig.l; // O atributo 'Treinamento' cresce com o nível do Chefe
+                const t_bonus = sig.l; 
                 const maxStatAllowed = 252 + t_bonus;
 
                 pkmn.evs[shuffledKeys[0]] = maxStatAllowed;
                 pkmn.evs[shuffledKeys[1]] = maxStatAllowed;
                 pkmn.evs[shuffledKeys[2]] = 10 + t_bonus;
 
-                // Adiciona um bônus aos líderes para deixá-los mais difíceis (IVs no máximo)
                 if (battleType !== 'gym_trainer') {
                     pkmn.ivs = { hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31 };
                 }
                 
-                // Recalcula os status finais com a nova força brutal
                 pkmn.stats = calculateStats(pkmn.baseStats, pkmn.level, pkmn.evs, pkmn.ivs, pkmn.variant);
                 pkmn.maxHp = pkmn.stats.hp; 
                 pkmn.hp = pkmn.maxHp;
@@ -9357,12 +9737,12 @@ window.activateGimmick = async function() {
         battleState.paused = true;
         battleState.gimmickUsed = true;
         p.isAwakened = true;
+        p.invulnerable = true; // 👈 I-FRAMES: ATIVA A INVENCIBILIDADE IMEDIATAMENTE
         
         // Aumenta o HP Máximo em 20% e cura 100%
         p.maxHp = Math.floor(p.stats.hp * 1.20);
         p.hp = p.maxHp;
 
-// 👉 CORREÇÃO: Atualiza a interface IMEDIATAMENTE para a barra encher 100% antes de qualquer dano
         updateBattleUI();
 
         // Animação e Log
@@ -9372,14 +9752,12 @@ window.activateGimmick = async function() {
         
         await sleep(1500); // Pausa dramática de 1.5s
         
-        // 👉 A MÁGICA DA CORREÇÃO: "Invincibility Frames" (I-Frames)
-        // Se o inimigo atacou DURANTE a animação e tirou vida (ou causou desmaio),
-        // o poder celestial reverte tudo, garantindo 100% de vida no final do processo!
         p.hp = p.maxHp;
         p.faintProcessed = false;
+        p.invulnerable = false; // 👈 I-FRAMES: DESATIVA A INVENCIBILIDADE
 
         document.getElementById('player-pos').classList.remove('catch-shake');
-        updateBattleUI(); // Atualiza a tela com a vida cheia garantida
+        updateBattleUI(); 
         
         battleState.paused = false;
         
@@ -9399,12 +9777,14 @@ window.activateGimmick = async function() {
         combat: 34322,
         breeder: 34323,
         collector: 34324,
-        topmon: 34325
+        topmon: 34325,
+	tower_t: 34375, // ID gerado para a Torre de Treinadores
+        tower_w: 34376  // ID gerado para a Torre Selvagem
     };
 
     let currentRankTab = 'geral';
-    let localScores = { geral: 0, combat: 0, breeder: 0, collector: 0, topmon: "Nenhum" };
-    let rawScoresForAPI = { geral: 0, combat: 0, breeder: 0, collector: 0, topmon_score: 0, topmon_meta: "" };
+    let localScores = { geral: 0, combat: 0, breeder: 0, collector: 0, topmon: "Nenhum", tower_t: 1, tower_w: 1 };
+    let rawScoresForAPI = { geral: 0, combat: 0, breeder: 0, collector: 0, topmon_score: 0, topmon_meta: "", tower_t: 1, tower_w: 1 };
     let llSessionToken = null;
 
     // 1. Autenticação Invisível (Guest Login)
@@ -9521,19 +9901,30 @@ window.activateGimmick = async function() {
 
         let geral = combat + breeder + collector + (trainerState.level * 100) + Math.floor(life.totalPkmnExp * 0.01);
 
+        // 👉 ATUALIZA A MEMÓRIA DO ANDAR MÁXIMO (Para se ele resetar a torre e voltar pro 1)
+        if (!trainerState.tower) trainerState.tower = { trainerFloor: 1, wildFloor: 1 };
+        trainerState.tower.maxTrainerFloor = Math.max(trainerState.tower.maxTrainerFloor || 1, trainerState.tower.trainerFloor || 1);
+        trainerState.tower.maxWildFloor = Math.max(trainerState.tower.maxWildFloor || 1, trainerState.tower.wildFloor || 1);
+
+        const maxT = trainerState.tower.maxTrainerFloor;
+        const maxW = trainerState.tower.maxWildFloor;
+
         // Prepara visual
         localScores = {
             geral: Math.floor(geral).toLocaleString('pt-BR'),
             combat: Math.floor(combat).toLocaleString('pt-BR'),
             breeder: Math.floor(breeder).toLocaleString('pt-BR'),
             collector: Math.floor(collector).toLocaleString('pt-BR'),
-            topmon: topMonLevel > 0 ? `${topMonName} (Lv.${topMonLevel})` : "Nenhum"
+            topmon: topMonLevel > 0 ? `${topMonName} (Lv.${topMonLevel})` : "Nenhum",
+            tower_t: `Andar ${maxT}`,
+            tower_w: `Andar ${maxW}`
         };
         
         // Prepara dados puros para a API
         rawScoresForAPI = {
             geral: Math.floor(geral), combat: Math.floor(combat), breeder: Math.floor(breeder), collector: Math.floor(collector),
-            topmon_score: topMonLevel, topmon_meta: topMonName
+            topmon_score: topMonLevel, topmon_meta: topMonName,
+            tower_t: maxT, tower_w: maxW
         };
         
         const myScoreEl = document.getElementById('my-local-score');
@@ -9555,13 +9946,15 @@ window.activateGimmick = async function() {
         }
 
         try {
-            // Monta as 5 caixas de envio usando os IDs que você criou
+            // Monta as caixas de envio usando os IDs que você criou
             const scoresToSubmit = [
                 { id: LEADERBOARDS.geral, score: rawScoresForAPI.geral },
                 { id: LEADERBOARDS.combat, score: rawScoresForAPI.combat },
                 { id: LEADERBOARDS.breeder, score: rawScoresForAPI.breeder },
                 { id: LEADERBOARDS.collector, score: rawScoresForAPI.collector },
-                { id: LEADERBOARDS.topmon, score: rawScoresForAPI.topmon_score, meta: rawScoresForAPI.topmon_meta }
+                { id: LEADERBOARDS.topmon, score: rawScoresForAPI.topmon_score, meta: rawScoresForAPI.topmon_meta },
+                { id: LEADERBOARDS.tower_t, score: rawScoresForAPI.tower_t },
+                { id: LEADERBOARDS.tower_w, score: rawScoresForAPI.tower_w }
             ];
 
             // Envia tudo para o banco de dados
@@ -9632,6 +10025,9 @@ window.activateGimmick = async function() {
                 let scoreDisplay = '';
                 if (tabId === 'topmon') {
                     scoreDisplay = `Lv. ${item.score} <br><span style="font-size:10px; color:#7f8c8d; font-weight:normal;">${item.metadata || ''}</span>`;
+                } else if (tabId.includes('tower')) {
+                    // 👉 SE FOR TORRE, ESCREVE "Andar X"
+                    scoreDisplay = `Andar ${item.score}`;
                 } else {
                     scoreDisplay = item.score.toLocaleString('pt-BR');
                 }
@@ -9658,7 +10054,10 @@ window.activateGimmick = async function() {
         document.getElementById(`rank-btn-${tabId}`).classList.add('active');
         currentRankTab = tabId;
         
-        document.getElementById('rank-score-label').innerText = tabId === 'topmon' ? "O Pokémon" : "PokéScore";
+        // 👉 A MÁGICA DOS TÍTULOS: Altera a coluna para "Andar Máximo"
+        if (tabId === 'topmon') document.getElementById('rank-score-label').innerText = "O Pokémon";
+        else if (tabId.includes('tower')) document.getElementById('rank-score-label').innerText = "Andar Máximo";
+        else document.getElementById('rank-score-label').innerText = "PokéScore";
         
         calculateLeaderboardStats(); // Atualiza contador local
         
