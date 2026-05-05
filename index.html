@@ -553,6 +553,24 @@ nav::-webkit-scrollbar-thumb { background: #34495e; border-radius: 5px; }
 
 /* ================= RESPONSIVIDADE (MOBILE V2) ================= */
 @media (max-width: 768px) {
+    
+    /* 👉 TRAVA O NAVEGADOR: Transforma a página num App Nativo */
+    html, body {
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        padding: 0 !important;
+        overflow: hidden !important; /* Mata o scroll geral do navegador */
+    }
+
+    /* 👉 APP OCUPA 100% DA TELA EXATAMENTE */
+    #app {
+        border-radius: 0;
+        height: 100% !important;
+        max-height: 100% !important;
+        width: 100% !important;
+    }
+
     /* 👉 Botão Menu no Canto Inferior Esquerdo */
     #toggle-sidebar {
         top: auto !important;
@@ -564,32 +582,31 @@ nav::-webkit-scrollbar-thumb { background: #34495e; border-radius: 5px; }
         z-index: 110 !important;
     }
     
-    /* 👉 CORREÇÃO DA ROLAGEM CORTADA (PALDEA ESCONDIDA) */
-    .tab-content { padding-bottom: 50px !important; }
+    /* 👉 CORREÇÃO DA ROLAGEM CORTADA (Aumentado para 75px para pular a barra de atalhos) */
+    .tab-content { padding-bottom: 75px !important; }
     .padding-wrap { padding-top: 20px !important; }
     
     /* Injetamos uma margem "fantasma" gigante no final da página para forçar o scroll */
-    #card-regions-grid { padding-bottom: 50px !important; margin-bottom: 25px !important; }
-    #gyms-container { padding-bottom: 50px !important; margin-bottom: 25px !important; }
-    #my-box-grid, #my-team-grid { padding-bottom: 50px !important; margin-bottom: 25px !important; }
+    #card-regions-grid { padding-bottom: 75px !important; margin-bottom: 25px !important; }
+    #gyms-container { padding-bottom: 75px !important; margin-bottom: 25px !important; }
+    #my-box-grid, #my-team-grid { padding-bottom: 75px !important; margin-bottom: 25px !important; }
     .battle-panel { padding-bottom: 25px !important; }
     
-    /* 👉 Barra Rápida no Rodapé */
+    /* 👉 Barra Rápida no Rodapé (Agora 100% fixada) */
     #quick-bar {
         top: auto !important; 
         bottom: 0 !important;
-        left: 48px !important;
+        left: 48px !important; 
         justify-content: flex-start !important; 
         padding: 0 5px !important; 
         border-bottom: none !important;
         border-top: 1px solid #bdc3c7 !important;
         box-shadow: 0 -2px 15px rgba(0,0,0,0.15) !important;
         z-index: 104 !important;
+        position: absolute !important;
     }
     .quick-btn { font-size: 22px !important; padding: 8px 4px !important; margin: 0; }
     
-    body { padding: 0; } 
-    #app { border-radius: 0; max-height: 100dvh; } 
     .grid-2 { grid-template-columns: 1fr; gap: 15px; }
     
     nav { 
