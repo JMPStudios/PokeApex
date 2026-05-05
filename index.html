@@ -551,70 +551,89 @@ nav::-webkit-scrollbar-thumb { background: #34495e; border-radius: 5px; }
 
 
 
-/* ================= RESPONSIVIDADE (MOBILE V2) ================= */
+/* ================= RESPONSIVIDADE (MOBILE V2 - ULTRA COMPACTO) ================= */
 @media (max-width: 768px) {
-    
-    /* 👉 TRAVA O NAVEGADOR: Transforma a página num App Nativo */
+    /* 👉 1. TRAVA ABSOLUTA: Transforma num App Nativo e impede o navegador de subir/descer a URL */
     html, body {
-        height: 100%;
-        width: 100%;
-        margin: 0;
+        height: 100dvh !important;
+        width: 100vw !important;
+        margin: 0 !important;
         padding: 0 !important;
-        overflow: hidden !important; /* Mata o scroll geral do navegador */
+        overflow: hidden !important; /* Mata o scroll da página externa */
+        position: fixed !important; /* Prega a tela no lugar, impedindo o "pulo" do navegador */
     }
 
-    /* 👉 APP OCUPA 100% DA TELA EXATAMENTE */
     #app {
-        border-radius: 0;
-        height: 100% !important;
-        max-height: 100% !important;
-        width: 100% !important;
+        border-radius: 0 !important;
+        height: 100dvh !important;
+        max-height: 100dvh !important;
+        width: 100vw !important;
+        display: flex;
+        flex-direction: column;
     }
 
-    /* 👉 Botão Menu no Canto Inferior Esquerdo */
-    #toggle-sidebar {
-        top: auto !important;
-        bottom: 10px !important;
-        left: 10px !important;
-        width: 32px !important;
-        height: 32px !important;
-        font-size: 16px !important;
-        z-index: 110 !important;
-    }
-    
-    /* 👉 CORREÇÃO DA ROLAGEM CORTADA (Aumentado para 75px para pular a barra de atalhos) */
-    .tab-content { padding-bottom: 75px !important; }
-    .padding-wrap { padding-top: 20px !important; }
-    
-    /* Injetamos uma margem "fantasma" gigante no final da página para forçar o scroll */
-    #card-regions-grid { padding-bottom: 75px !important; margin-bottom: 25px !important; }
-    #gyms-container { padding-bottom: 75px !important; margin-bottom: 25px !important; }
-    #my-box-grid, #my-team-grid { padding-bottom: 75px !important; margin-bottom: 25px !important; }
-    .battle-panel { padding-bottom: 25px !important; }
-    
-    /* 👉 Barra Rápida no Rodapé (Agora 100% fixada) */
+    /* 👉 2. BARRA RÁPIDA FIXA NO FUNDO (Cravada na tela) */
     #quick-bar {
+        position: fixed !important; 
         top: auto !important; 
         bottom: 0 !important;
-        left: 48px !important; 
+        left: 45px !important; 
+        right: 0 !important;
+        height: 50px !important;
         justify-content: flex-start !important; 
         padding: 0 5px !important; 
         border-bottom: none !important;
         border-top: 1px solid #bdc3c7 !important;
         box-shadow: 0 -2px 15px rgba(0,0,0,0.15) !important;
-        z-index: 104 !important;
-        position: absolute !important;
+        z-index: 9999 !important;
+        background: #ecf0f1 !important;
     }
-    .quick-btn { font-size: 22px !important; padding: 8px 4px !important; margin: 0; }
+    .quick-btn { font-size: 20px !important; padding: 5px !important; margin: 0; }
+
+    #toggle-sidebar {
+        position: fixed !important;
+        top: auto !important;
+        bottom: 8px !important;
+        left: 6px !important;
+        width: 34px !important;
+        height: 34px !important;
+        font-size: 16px !important;
+        z-index: 10000 !important;
+    }
+
+    /* 👉 3. COMPRESSÃO DO LAYOUT VERTICAL (Tudo Menor e Mais Junto) */
+    .tab-content { 
+        height: 100dvh !important;
+        padding-top: 10px !important; 
+        padding-bottom: 60px !important; /* Deixa o espaço exato da barra inferior livre */
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+        overflow-y: auto !important; /* O SCROLL SÓ ACONTECE AQUI DENTRO AGORA! */
+        -webkit-overflow-scrolling: touch; /* Deixa a rolagem suave no iPhone */
+    }
+
+    /* Removemos as margens gigantes antigas para a tela parar de crescer sozinha */
+    #card-regions-grid, #gyms-container, #my-box-grid, #my-team-grid { 
+        padding-bottom: 10px !important; 
+        margin-bottom: 10px !important; 
+    }
+
+    h2 { margin-bottom: 10px !important; padding-bottom: 5px !important; font-size: 18px !important; }
+    .grid-2 { grid-template-columns: 1fr !important; gap: 10px !important; margin-bottom: 10px !important; }
     
-    .grid-2 { grid-template-columns: 1fr; gap: 15px; }
-    
+    /* Encolhendo os espaços dos blocos brancos e azuis para caber muito mais coisa na tela */
+    div[style*="padding: 15px"], div[style*="padding: 20px"] {
+        padding: 10px !important;
+    }
+    div[style*="margin-bottom: 20px"] {
+        margin-bottom: 10px !important;
+    }
+
     nav { 
-        position: absolute; height: 100%; left: 0; top: 0; z-index: 105; box-shadow: 5px 0 20px rgba(0,0,0,0.7); 
+        position: fixed !important; height: 100dvh !important; left: 0; top: 0; z-index: 10005; box-shadow: 5px 0 20px rgba(0,0,0,0.7); 
     }
 
     /* ================= AJUSTES DA ARENA DE BATALHA ================= */
-
             .arena-bg { 
 
                 min-height: 200px; /* 👈 Arena ainda menor */
