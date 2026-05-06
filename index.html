@@ -551,16 +551,17 @@ nav::-webkit-scrollbar-thumb { background: #34495e; border-radius: 5px; }
 
 
 
-/* ================= RESPONSIVIDADE (MOBILE V2 - ULTRA COMPACTO) ================= */
+/* ================= RESPONSIVIDADE (MOBILE V2 - TELA CHEIA) ================= */
 @media (max-width: 768px) {
-    /* 👉 1. TRAVA ABSOLUTA: Transforma num App Nativo e impede o navegador de subir/descer a URL */
+    /* 👉 1. TELA CHEIA: Mata o fundo escuro e preenche a tela toda com branco */
     html, body {
         height: 100dvh !important;
         width: 100vw !important;
         margin: 0 !important;
         padding: 0 !important;
-        overflow: hidden !important; /* Mata o scroll da página externa */
-        position: fixed !important; /* Prega a tela no lugar, impedindo o "pulo" do navegador */
+        overflow: hidden !important; 
+        position: fixed !important; 
+        background: #ffffff !important; 
     }
 
     #app {
@@ -568,11 +569,40 @@ nav::-webkit-scrollbar-thumb { background: #34495e; border-radius: 5px; }
         height: 100dvh !important;
         max-height: 100dvh !important;
         width: 100vw !important;
+        background: #ffffff !important; 
         display: flex;
         flex-direction: column;
+        box-shadow: none !important; 
+        border: none !important;
     }
 
-    /* 👉 2. BARRA RÁPIDA FIXA NO FUNDO (Cravada na tela) */
+    /* 👉 2. COLA NO TETO: Remove a margem superior de 75px do PC */
+    .tab-content { 
+        height: 100dvh !important;
+        padding-bottom: 60px !important; /* Protege a barra do rodapé */
+        background: #ffffff !important;
+        overflow-y: auto !important; 
+        -webkit-overflow-scrolling: touch; 
+    }
+
+    .padding-wrap { 
+        /* 10px apenas para o texto não bater na câmera do celular */
+        padding: 10px 10px !important; 
+    }
+
+    /* 👉 3. BOTÃO MENU */
+    #toggle-sidebar {
+        position: fixed !important;
+        top: auto !important;
+        bottom: 8px !important;
+        left: 6px !important;
+        width: 34px !important;
+        height: 34px !important;
+        font-size: 16px !important;
+        z-index: 10000 !important;
+    }
+
+    /* 👉 4. BARRA RÁPIDA NO RODAPÉ */
     #quick-bar {
         position: fixed !important; 
         top: auto !important; 
@@ -589,7 +619,6 @@ nav::-webkit-scrollbar-thumb { background: #34495e; border-radius: 5px; }
         background: #ecf0f1 !important;
     }
     .quick-btn { font-size: 20px !important; padding: 5px !important; margin: 0; }
-
     #toggle-sidebar {
         position: fixed !important;
         top: auto !important;
@@ -7507,8 +7536,8 @@ async function startWildEncounter() {
             // 2ª Trava: Sorte Extrema (Apenas 5% de chance, mas 50% se já derrotou o Campeão da região!)
             let legChance = (trainerState.achievements && trainerState.achievements.dex_hoenn) ? 0.15 : 0.05;
             
-            // Verifica se já derrotou o Campeão da Região atual
-            if (trainerState.league && trainerState.league[regionId] && trainerState.league[regionId].c) {
+            // 👉 CORREÇÃO: Verifica se já derrotou o Campeão da Região atual OU se já está no modo Prestígio
+            if (trainerState.league && trainerState.league[regionId] && (trainerState.league[regionId].c || trainerState.league[regionId].prestige > 0)) {
                 legChance = 0.50; // 50% de chance!
             }
 
@@ -9725,7 +9754,9 @@ function renderGyms() {
             const selected = available[Math.floor(Math.random() * available.length)];
             usedMons.add(selected.id); // Registra na memória
             
-            const lvl = Math.max(1, Math.min(100, baseLevel + Math.floor(Math.random() * 5) - 2)); 
+            // 👉 CORREÇÃO 1: Limite Infinito de Nível na Liga no Pós-Jogo!
+            const maxLeagueLvl = trainerState.postgame ? Infinity : 100;
+            const lvl = Math.max(1, Math.min(maxLeagueLvl, baseLevel + Math.floor(Math.random() * 5) - 2)); 
             team.push({ n: selected.n, l: lvl });
         }
 
@@ -9767,6 +9798,15 @@ async function startLeagueBattle(regionId, battleType, index) {
 
             const teamSignature = trainerState.leagueTeams[teamKey];
             currentEnemyTeam = [];
+
+            // 👉 CORREÇÃO 2: Cura os times que já tinham sido salvos no seu PC presos no Nível 100
+            if (trainerState.postgame) {
+                teamSignature.forEach(sig => {
+                    if (sig.l === 100 && actualLevel > 100) {
+                        sig.l = Math.max(1, actualLevel + Math.floor(Math.random() * 5) - 2);
+                    }
+                });
+            }
             
             // 👉 DEFINE A PATENTE DA VANGUARDA
             let facLevel = 5; 
