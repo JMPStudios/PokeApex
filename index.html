@@ -2357,7 +2357,19 @@ nav::-webkit-scrollbar-thumb { background: #34495e; border-radius: 5px; }
 
     const hideLoader = () => { document.getElementById('loader').style.display = 'none'; }
 
-    const log = (msg) => { const el = document.getElementById('battle-log'); if(el) { el.innerHTML += `<br>> ${msg}`; el.scrollTop = el.scrollHeight; } }
+    const log = (msg) => { 
+        const el = document.getElementById('battle-log'); 
+        if(el) { 
+            // MÁGICA 1: insertAdjacentHTML não recarrega o texto antigo, joga direto na tela (100x mais rápido)
+            el.insertAdjacentHTML('beforeend', `<div style="margin-top:2px;">> ${msg}</div>`); 
+            
+            // MÁGICA 2: Se o Log passar de 40 mensagens, ele apaga a mais velha silenciosamente
+            while (el.children.length > 40) {
+                el.removeChild(el.firstChild);
+            }
+            el.scrollTop = el.scrollHeight; 
+        } 
+    }
 
     const setText = (id, text) => { const el = document.getElementById(id); if (el) el.innerText = text; }
 
@@ -2437,6 +2449,11 @@ nav::-webkit-scrollbar-thumb { background: #34495e; border-radius: 5px; }
             // Garante que a memória do sistema limpe a seleção caso seja o card do Pokémon
             if (e.target.id === 'pkmn-modal') {
                 activeModalPkmn.idx = -1;
+            }
+
+            // 👇 CORREÇÃO: Se fechou a mochila de captura clicando fora, despausa a batalha!
+            if (e.target.id === 'catch-modal' && typeof battleState !== 'undefined') {
+                battleState.paused = false;
             }
         }
     });
@@ -3195,13 +3212,17 @@ async function startTower(type) {
             battleState.isPvP = false;
             battleState.isTourney = false;
             battleState.isTower = true;
+            battleState.isRival = false; // 👈 ADICIONE AQUI
             battleState.towerType = type;
             
             // Força pular pro primeiro Pokémon vivo
             battleState.pIdx = playerTeam.findIndex(p => p.hp > 0);
             battleState.eIdx = 0;
-            battleState.pCd = getMaxCd(playerTeam[battleState.pIdx]);
-            battleState.eCd = Math.floor(getMaxCd(currentEnemyTeam[0]) / 2);
+            
+            // 👉 NOVO: Torre também começa zerada para testar a Velocidade no Turno 1!
+            battleState.pCd = 0;
+            battleState.eCd = 0;
+            
             battleState.globalTick = 0;
             battleState.active = true;
             battleState.gimmickUsed = false;
@@ -3218,6 +3239,10 @@ async function startTower(type) {
 
             switchTab('tab-battle');
             updateBattleUI();
+            
+            // 👉 LIMPADOR DE MEMÓRIA: Apaga o lixo da batalha passada para o jogo não pesar!
+            document.getElementById('battle-log').innerHTML = ''; 
+            
             log(`<b>Bem-vindo ao Andar ${floor}! Lute para sobreviver!</b>`);
             
             if (battleState.loopTimer) clearTimeout(battleState.loopTimer);
@@ -3288,7 +3313,8 @@ let usedNames = new Set();
             battleState.isWild = false;
             battleState.isPvP = false;
             battleState.isLeague = false;
-            battleState.isTower = false; // 👈 ADICIONE ESTA LINHA AQUI!
+            battleState.isTower = false; 
+            battleState.isRival = false; // 👈 ADICIONE AQUI
             
             initBattleUI();
         } catch(e) { 
@@ -7562,7 +7588,8 @@ async function startWildEncounter() {
         battleState.isPvP = false; 
         battleState.isLeague = false; 
         battleState.isTourney = false; 
-        battleState.isTower = false; // 👈 GARANTE QUE A TORRE É DESLIGADA
+        battleState.isTower = false; 
+        battleState.isRival = false; // 👈 ADICIONE AQUI
         initBattleUI();
         
     } catch(e) { 
@@ -7604,7 +7631,8 @@ function startRivalBattle() {
         battleState.isPvP = false; 
         battleState.isLeague = false; 
         battleState.isTourney = false;
-        battleState.isTower = false; // 👈 ADICIONE ESTA LINHA AQUI!
+        battleState.isTower = false; 
+        battleState.isRival = true; // 👈 NOVA LINHA AQUI!
         
         initBattleUI();
 
@@ -7668,20 +7696,13 @@ playerTeam.forEach(p => { revertTransformation(p); p.maxHp = p.stats.hp; p.hp = 
 
         
 
-        battleState.pIdx = 0; 
-
+	battleState.pIdx = 0; 
         battleState.eIdx = 0; 
-
         
-
-        const pStartCd = getMaxCd(playerTeam[0]);
-
-        const eStartCd = Math.floor(getMaxCd(currentEnemyTeam[0]) / 2);
-
+        // 👉 NOVO: Ambas as barras começam do absoluto zero!
+        battleState.pCd = 0; 
+        battleState.eCd = 0; 
         
-
-        battleState.pCd = pStartCd; 
-        battleState.eCd = eStartCd; 
         battleState.lastCatchTime = 0;
         battleState.catchAttempts = 0;
         
@@ -7690,7 +7711,7 @@ playerTeam.forEach(p => { revertTransformation(p); p.maxHp = p.stats.hp; p.hp = 
         
         // 👉 CORREÇÃO DO VAZAMENTO: Garante que a Torre é desligada por padrão para qualquer outra batalha!
         if (battleState.autoAttackSlot === undefined) battleState.autoAttackSlot = -1;
-        battleState.isTower = false; // 👈 MUDANÇA AQUI: Removemos o "if", agora ele SEMPRE desliga a torre!
+        battleState.isTower = false; 
 
         battleState.globalTick = 0; 
         battleState.active = true; 
@@ -7698,29 +7719,21 @@ playerTeam.forEach(p => { revertTransformation(p); p.maxHp = p.stats.hp; p.hp = 
         battleState.enemyGimmickUsed = false; 
         battleState.paused = false;
 
-        
-
         document.getElementById('nav-battle').disabled = false;
-
         document.getElementById('catch-container').style.display = battleState.isWild ? 'flex' : 'none'; 
-
         document.getElementById('btn-catch').style.display = battleState.isWild ? '' : 'none';
 
-        
-
+        // 👉 VISUAL: As barras gráficas também precisam iniciar zeradas
         const pBar = document.getElementById('player-cd-bar');
-
-        if(pBar) pBar.style.width = '100%';
-
+        if(pBar) pBar.style.width = '0%';
         const eBar = document.getElementById('enemy-cd-bar');
-
-        if(eBar) eBar.style.width = '50%';
+        if(eBar) eBar.style.width = '0%';
 
         
 
         populatePokeballs(); 
 
-        document.getElementById('battle-log').innerHTML = "A Batalha Começou!"; 
+        document.getElementById('battle-log').innerHTML = "<div>A Batalha Começou!</div>";
 
         
 
@@ -9354,13 +9367,14 @@ function endBattle() {
             switchTab('tab-tourney'); 
         } else if (battleState.isLeague) { 
             switchTab('tab-gyms');
-        } else if (battleState.isTower) { // 👈 NOVA REGRA DE ROTA
+        } else if (battleState.isTower) { 
             switchTab('tab-tower');
+        } else if (battleState.isRival) { // 👈 NOVA ROTA DO RIVAL AQUI
+            switchTab('tab-rival');
         } else {
             switchTab('tab-trainer'); 
         }
     }
-
 
 
 /* ================= POKÉDEX SYSTEM ================= */
